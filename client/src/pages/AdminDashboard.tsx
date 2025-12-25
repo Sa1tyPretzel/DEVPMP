@@ -16,6 +16,16 @@ import {
   Gauge,
   Timer,
 } from "lucide-react";
+import {
+  BarChart as RechartsBarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import Button from "../components/UI/Button";
 import Card from "../components/UI/Card";
 import Input from "../components/UI/Input";
@@ -36,6 +46,17 @@ interface VehicleForm {
   state: string;
   carrier: number;
 }
+
+const COLORS = [
+  "#0d9488", // teal
+  "#2563eb", // blue
+  "#db2777", // pink
+  "#d97706", // amber
+  "#7c3aed", // violet
+  "#dc2626", // red
+  "#059669", // emerald
+  "#4f46e5", // indigo
+];
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -418,6 +439,67 @@ const AdminDashboard: React.FC = () => {
                         className="rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
                       />
                     </div>
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                    Daily Fuel Consumption Trend
+                  </h3>
+                  <div className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsBarChart
+                        data={(() => {
+                          if (!selectedMonth) return [];
+                          const [year, month] = selectedMonth
+                            .split("-")
+                            .map(Number);
+                          const daysInMonth = new Date(year, month, 0).getDate();
+                          const data: any[] = [];
+                          
+                          for (let day = 1; day <= daysInMonth; day++) {
+                            const dateStr = `${selectedMonth}-${String(
+                              day
+                            ).padStart(2, "0")}`;
+                            
+                            const dayData: any = { day: day.toString() };
+                            
+                            // Initialize all carriers with 0
+                            carriers.forEach(c => {
+                              dayData[c.name] = 0;
+                            });
+
+                            const dailyTrips = trips.filter((t) => 
+                              t.start_time.startsWith(dateStr)
+                            );
+
+                            dailyTrips.forEach(trip => {
+                              const carrier = carriers.find(c => c.id === trip.vehicle.carrier);
+                              if (carrier) {
+                                dayData[carrier.name] += Number(trip.fuel_used || 0);
+                              }
+                            });
+
+                            data.push(dayData);
+                          }
+                          return data;
+                        })()}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="day" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        {carriers.map((carrier, index) => (
+                          <Bar
+                            key={carrier.id}
+                            dataKey={carrier.name}
+                            fill={COLORS[index % COLORS.length]}
+                            name={carrier.name}
+                          />
+                        ))}
+                      </RechartsBarChart>
+                    </ResponsiveContainer>
                   </div>
                 </Card>
 
