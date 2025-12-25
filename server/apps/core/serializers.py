@@ -31,7 +31,9 @@ class TripSerializer(serializers.ModelSerializer):
     vehicle = VehicleSerializer(read_only=True)
     current_location = PointField(read_only=True)
     pickup_location = PointField(read_only=True)
+    pickup_location = PointField(read_only=True)
     dropoff_location = PointField(read_only=True)
+    driver_name = serializers.ReadOnlyField(source="driver.user.get_full_name")
 
     # --- Write-only fields for creating/updating a trip ---
     vehicle_id = serializers.PrimaryKeyRelatedField(
@@ -52,6 +54,7 @@ class TripSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "driver",
+            "driver_name",
             "vehicle",
             "vehicle_id",
             "current_location_name",

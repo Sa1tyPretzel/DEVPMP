@@ -15,6 +15,7 @@ import {
   Search,
   Building,
   Fuel,
+  User,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTrips, useUpdateTrip, useDeleteTrip } from "../hooks/useTrips";
@@ -61,6 +62,9 @@ const DashboardPage: React.FC = () => {
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
       (trip.vehicle?.vehicle_number || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      (trip.driver_name || "") // Added driver name to search
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
     const matchesStatus =
@@ -372,6 +376,9 @@ const DashboardPage: React.FC = () => {
                         Route
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Driver
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Vehicle
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -401,6 +408,14 @@ const DashboardPage: React.FC = () => {
                           <div className="text-sm font-medium text-gray-900 dark:text-white">
                             {trip.pickup_location_name} →{" "}
                             {trip.dropoff_location_name}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <User className="w-4 h-4 text-gray-400 mr-2" />
+                            <span className="text-sm font-medium text-gray-900 dark:text-white">
+                              {trip.driver_name || "Unknown Driver"}
+                            </span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
