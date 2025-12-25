@@ -59,6 +59,7 @@ interface TripForm {
   dropoff_location: string;
   dropoff_location_coords: [number, number] | null;
   current_cycle_hours: number;
+  fuel_used: number;
   start_time: string;
 }
 
@@ -104,6 +105,7 @@ const CreateTripPage: React.FC = () => {
       dropoff_location: "",
       dropoff_location_coords: null,
       current_cycle_hours: 0,
+      fuel_used: 0,
       start_time: "",
     },
   });
@@ -231,6 +233,7 @@ const CreateTripPage: React.FC = () => {
         dropoff_location_input: data.dropoff_location_coords,
         dropoff_location_name: data.dropoff_location,
         current_cycle_hours: data.current_cycle_hours,
+        fuel_used: data.fuel_used,
         start_time: data.start_time,
         status: "PLANNED",
       });
@@ -270,6 +273,7 @@ const CreateTripPage: React.FC = () => {
         dropoff_location_input: formData.dropoff_location_coords,
         dropoff_location_name: formData.dropoff_location,
         current_cycle_hours: formData.current_cycle_hours || 0,
+        fuel_used: formData.fuel_used || 0,
         start_time: formData.start_time || new Date().toISOString(),
         status: "PLANNED",
       };
@@ -455,22 +459,38 @@ const CreateTripPage: React.FC = () => {
                   )}
                 </div>
               ))}
-              <Input
-                label="Current Cycle Hours Used"
-                type="number"
-                min="0"
-                max="70"
-                step="0.5"
-                placeholder="20.5"
-                icon={<Clock className="w-4 h-4" />}
-                error={errors.current_cycle_hours?.message}
-                {...register("current_cycle_hours", {
-                  required: "Cycle hours are required",
-                  min: { value: 0, message: "Hours cannot be negative" },
-                  max: { value: 70, message: "Hours cannot exceed 70" },
-                  valueAsNumber: true,
-                })}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  label="Current Cycle Hours Used"
+                  type="number"
+                  min="0"
+                  max="70"
+                  step="0.5"
+                  placeholder="20.5"
+                  icon={<Clock className="w-4 h-4" />}
+                  error={errors.current_cycle_hours?.message}
+                  {...register("current_cycle_hours", {
+                    required: "Cycle hours are required",
+                    min: { value: 0, message: "Hours cannot be negative" },
+                    max: { value: 70, message: "Hours cannot exceed 70" },
+                    valueAsNumber: true,
+                  })}
+                />
+                <Input
+                  label="Fuel Used (gallons)"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  placeholder="25.5"
+                  icon={<Truck className="w-4 h-4" />}
+                  error={errors.fuel_used?.message}
+                  {...register("fuel_used", {
+                    required: "Fuel used is required",
+                    min: { value: 0, message: "Fuel cannot be negative" },
+                    valueAsNumber: true,
+                  })}
+                />
+              </div>
               {cycleHours > 0 && (
                 <div className="mt-2 flex items-center space-x-2">
                   <div className="flex-1 bg-gray-200 rounded-full h-2">

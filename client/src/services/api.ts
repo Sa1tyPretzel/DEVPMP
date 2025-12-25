@@ -116,6 +116,7 @@ export interface Trip {
   current_location: [number, number];
   pickup_location: [number, number];
   dropoff_location: [number, number];
+  fuel_used: number;
   current_cycle_hours: number;
   start_time: string;
   status: "PLANNED" | "IN_PROGRESS" | "COMPLETED";
@@ -219,6 +220,7 @@ export const tripsAPI = {
     pickup_location_name: string;
     dropoff_location_input: [number, number];
     dropoff_location_name: string;
+    fuel_used?: number;
     current_cycle_hours: number;
     start_time: string;
     status?: string;
@@ -231,6 +233,7 @@ export const tripsAPI = {
       pickup_location_name: tripData.pickup_location_name,
       dropoff_location_input: tripData.dropoff_location_input,
       dropoff_location_name: tripData.dropoff_location_name,
+      fuel_used: tripData.fuel_used,
       current_cycle_hours: tripData.current_cycle_hours,
       start_time: tripData.start_time,
       status: tripData.status || "PLANNED",

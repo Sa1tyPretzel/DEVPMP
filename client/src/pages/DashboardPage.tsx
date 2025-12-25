@@ -14,6 +14,7 @@ import {
   Filter,
   Search,
   Building,
+  Fuel,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTrips, useUpdateTrip, useDeleteTrip } from "../hooks/useTrips";
@@ -38,7 +39,6 @@ const DashboardPage: React.FC = () => {
   const deleteTripMutation = useDeleteTrip();
 
   // Calculate summary stats from real data
-  const plannedTrips = trips.filter((trip) => trip.status === "PLANNED");
   const inProgressTrips = trips.filter((trip) => trip.status === "IN_PROGRESS");
   const completedTrips = trips.filter((trip) => trip.status === "COMPLETED");
   const totalCycleHours =
@@ -46,6 +46,10 @@ const DashboardPage: React.FC = () => {
       ? trips.reduce((sum, trip) => sum + trip.current_cycle_hours, 0) /
         trips.length
       : 0;
+  const totalFuelConsumed = trips.reduce(
+    (sum, trip) => sum + Number(trip.fuel_used || 0),
+    0
+  );
 
   // Filter trips based on search, status, and vehicle
   const filteredTrips = trips.filter((trip) => {
@@ -198,15 +202,15 @@ const DashboardPage: React.FC = () => {
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/20 rounded-md flex items-center justify-center">
-                      <MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <Fuel className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     </div>
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      Planned Trips
+                      Fuel Consumed
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {plannedTrips.length}
+                      {totalFuelConsumed.toFixed(1)} gal
                     </p>
                   </div>
                 </div>

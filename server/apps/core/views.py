@@ -174,13 +174,15 @@ class ELDLogGenerateView(APIView):
         total_engine_hours = request.data.get("total_engine_hours", 0)
         fuel_consumed = request.data.get("fuel_consumed", 0.0)
 
-        eld_log, created = ELDLog.objects.get_or_create(
+        eld_log, created = ELDLog.objects.update_or_create(
             trip=trip,
             date=log_date,
-            total_idle_hours=total_idle_hours,
-            total_engine_hours=total_engine_hours,
-            fuel_consumed=fuel_consumed,
-            defaults={"total_miles": total_miles},
+            defaults={
+                "total_idle_hours": total_idle_hours,
+                "total_engine_hours": total_engine_hours,
+                "fuel_consumed": fuel_consumed,
+                "total_miles": total_miles,
+            },
         )
 
         serializer = ELDLogSerializer(eld_log, context={"request": request})

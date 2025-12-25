@@ -63,6 +63,7 @@ class TripSerializer(serializers.ModelSerializer):
             "dropoff_location_name",
             "dropoff_location",
             "dropoff_location_input",
+            "fuel_used",
             "current_cycle_hours",
             "start_time",
             "status",

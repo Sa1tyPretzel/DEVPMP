@@ -1,4 +1,7 @@
 from django.db import models
+from django.db.models import Sum
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 from django.contrib.auth.models import User
 
 
@@ -70,6 +73,14 @@ class Trip(models.Model):
     dropoff_longitude = models.FloatField()
     dropoff_latitude = models.FloatField()
     dropoff_location_name = models.CharField(max_length=255, blank=True)
+    fuel_used = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text="Fuel used in gallons during trip",
+        default=0.00,
+        null=True,
+        blank=True,
+    )
     current_cycle_hours = models.FloatField(default=0.0)
     start_time = models.DateTimeField()
     status = models.CharField(
@@ -175,3 +186,20 @@ class ELDLog(models.Model):
 
     def __str__(self):
         return f"ELD Log for Trip {self.trip.id} on {self.date}"
+
+
+@receiver(post_save, sender=ELDLog)
+@receiver(post_delete, sender=ELDLog)
+def update_trip_fuel(sender, instance, **kwargs):
+    """
+    Updates the total fuel_used in the Trip model whenever an ELDLog is saved or deleted.
+    """
+    trip = instance.trip
+    total_fuel = (
+        ELDLog.objects.filter(trip=trip).aggregate(Sum("fuel_consumed"))[
+            "fuel_consumed__sum"
+        ]
+        or 0.00
+    )
+    trip.fuel_used = total_fuel
+    trip.save(update_fields=["fuel_used"])
