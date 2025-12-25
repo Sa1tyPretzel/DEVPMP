@@ -117,6 +117,8 @@ export interface Trip {
   pickup_location: [number, number];
   dropoff_location: [number, number];
   fuel_used: number;
+  total_miles: number;
+  total_engine_hours: number;
   current_cycle_hours: number;
   start_time: string;
   status: "PLANNED" | "IN_PROGRESS" | "COMPLETED";

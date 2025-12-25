@@ -81,6 +81,10 @@ class Trip(models.Model):
         null=True,
         blank=True,
     )
+    total_miles = models.FloatField(default=0.0)
+    total_engine_hours = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0.00
+    )
     current_cycle_hours = models.FloatField(default=0.0)
     start_time = models.DateTimeField()
     status = models.CharField(
@@ -192,14 +196,17 @@ class ELDLog(models.Model):
 @receiver(post_delete, sender=ELDLog)
 def update_trip_fuel(sender, instance, **kwargs):
     """
-    Updates the total fuel_used in the Trip model whenever an ELDLog is saved or deleted.
+    Updates the total fuel_used, total_miles, and total_engine_hours in the Trip model
+    whenever an ELDLog is saved or deleted.
     """
     trip = instance.trip
-    total_fuel = (
-        ELDLog.objects.filter(trip=trip).aggregate(Sum("fuel_consumed"))[
-            "fuel_consumed__sum"
-        ]
-        or 0.00
+    aggregates = ELDLog.objects.filter(trip=trip).aggregate(
+        total_fuel=Sum("fuel_consumed"),
+        total_miles=Sum("total_miles"),
+        total_engine_hours=Sum("total_engine_hours"),
     )
-    trip.fuel_used = total_fuel
-    trip.save(update_fields=["fuel_used"])
+
+    trip.fuel_used = aggregates["total_fuel"] or 0.00
+    trip.total_miles = aggregates["total_miles"] or 0.0
+    trip.total_engine_hours = aggregates["total_engine_hours"] or 0.00
+    trip.save(update_fields=["fuel_used", "total_miles", "total_engine_hours"])

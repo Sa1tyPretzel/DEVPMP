@@ -11,6 +11,10 @@ import {
   Trash2,
   Eye,
   AlertCircle,
+  BarChart,
+  Fuel,
+  Gauge,
+  Timer,
 } from "lucide-react";
 import Button from "../components/UI/Button";
 import Card from "../components/UI/Card";
@@ -18,6 +22,7 @@ import Input from "../components/UI/Input";
 import Modal from "../components/UI/Modal";
 import { useCarriers, useCreateCarrier } from "../hooks/useCarriers";
 import { useVehicles, useCreateVehicle } from "../hooks/useVehicles";
+import { useTrips } from "../hooks/useTrips";
 
 // Form data interfaces
 interface CarrierForm {
@@ -42,6 +47,7 @@ const AdminDashboard: React.FC = () => {
   // React Query Hooks for data fetching and mutations
   const { data: carriers = [], isLoading: carriersLoading } = useCarriers();
   const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
+  const { data: trips = [], isLoading: tripsLoading } = useTrips();
   const createCarrierMutation = useCreateCarrier();
   const createVehicleMutation = useCreateVehicle();
 
@@ -64,6 +70,7 @@ const AdminDashboard: React.FC = () => {
     { id: "overview", label: "Overview", icon: Users },
     { id: "carriers", label: "Carriers", icon: Building },
     { id: "vehicles", label: "Vehicles", icon: Truck },
+    { id: "efficiency", label: "Efficiency", icon: BarChart },
   ];
 
   // Filtering logic
@@ -118,7 +125,7 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const isLoading = carriersLoading || vehiclesLoading;
+  const isLoading = carriersLoading || vehiclesLoading || tripsLoading;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -387,6 +394,127 @@ const AdminDashboard: React.FC = () => {
                     </table>
                   </div>
                 </Card>
+              </div>
+            )}
+
+            {activeTab === "efficiency" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {carriers.map((carrier) => {
+                  const carrierTrips = trips.filter(
+                    (trip) => trip.vehicle.carrier === carrier.id
+                  );
+                  const totalFuel = carrierTrips.reduce(
+                    (sum, trip) => sum + Number(trip.fuel_used || 0),
+                    0
+                  );
+                  const totalMiles = carrierTrips.reduce(
+                    (sum, trip) => sum + (trip.total_miles || 0),
+                    0
+                  );
+                  const totalEngineHours = carrierTrips.reduce(
+                    (sum, trip) => sum + Number(trip.total_engine_hours || 0),
+                    0
+                  );
+
+                  const totalTrips = carrierTrips.length;
+                  const avgFuel =
+                    totalTrips > 0 ? (totalFuel / totalTrips).toFixed(1) : "0";
+
+                  const fuelEfficiency =
+                    totalFuel > 0 ? (totalMiles / totalFuel).toFixed(1) : "0";
+
+                  const avgSpeed =
+                    totalEngineHours > 0
+                      ? (totalMiles / totalEngineHours).toFixed(1)
+                      : "0";
+
+                  return (
+                    <Card key={carrier.id} className="p-6" hover>
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            {carrier.name}
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {carrier.main_office_address}
+                          </p>
+                        </div>
+                        <div className="w-10 h-10 bg-teal-100 dark:bg-teal-900/20 rounded-full flex items-center justify-center">
+                          <BarChart className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 mt-6">
+                        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+                            Total Fuel
+                          </p>
+                          <div className="flex items-center">
+                            <Fuel className="w-4 h-4 text-orange-500 mr-2" />
+                            <span className="text-xl font-bold text-gray-900 dark:text-white">
+                              {totalFuel.toFixed(1)}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+                            Avg / Trip
+                          </p>
+                          <div className="flex items-center">
+                            <span className="text-xl font-bold text-gray-900 dark:text-white">
+                              {avgFuel}
+                            </span>
+                            <span className="text-xs text-gray-500 ml-1">
+                              gal
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+                            Fuel Eff.
+                          </p>
+                          <div className="flex items-center">
+                            <Gauge className="w-4 h-4 text-blue-500 mr-2" />
+                            <span className="text-xl font-bold text-gray-900 dark:text-white">
+                              {fuelEfficiency}
+                            </span>
+                            <span className="text-xs text-gray-500 ml-1">
+                              mpg
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+                            Avg Speed
+                          </p>
+                          <div className="flex items-center">
+                            <Timer className="w-4 h-4 text-purple-500 mr-2" />
+                            <span className="text-xl font-bold text-gray-900 dark:text-white">
+                              {avgSpeed}
+                            </span>
+                            <span className="text-xs text-gray-500 ml-1">
+                              mph
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="col-span-2 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                              Total Completed Trips
+                            </span>
+                            <span className="text-lg font-bold text-gray-900 dark:text-white">
+                              {totalTrips}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </>

@@ -169,7 +169,9 @@ class ELDLogGenerateView(APIView):
             dropoff_location=trip.get_dropoff_location(),
         )
         route_data = calculator.plan_trip()
-        total_miles = route_data.get("total_miles", 0)
+        total_miles = request.data.get("total_miles")
+        if total_miles is None:
+            total_miles = route_data.get("total_miles", 0)
         total_idle_hours = request.data.get("total_idle_hours", 0)
         total_engine_hours = request.data.get("total_engine_hours", 0)
         fuel_consumed = request.data.get("fuel_consumed", 0.0)
