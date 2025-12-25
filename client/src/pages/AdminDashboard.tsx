@@ -15,6 +15,7 @@ import {
   Fuel,
   Gauge,
   Timer,
+  Trophy,
 } from "lucide-react";
 import {
   BarChart as RechartsBarChart,
@@ -101,6 +102,7 @@ const AdminDashboard: React.FC = () => {
     { id: "carriers", label: "Carriers", icon: Building },
     { id: "vehicles", label: "Vehicles", icon: Truck },
     { id: "efficiency", label: "Efficiency", icon: BarChart },
+    { id: "top_drivers", label: "Top Drivers", icon: Trophy },
   ];
 
   // Filtering logic
@@ -667,6 +669,159 @@ const AdminDashboard: React.FC = () => {
                   );
                   })}
                 </div>
+              </div>
+            )}
+
+{activeTab === "top_drivers" && (
+              <div className="space-y-8">
+                 <Card className="p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                      Top Drivers by Carrier ({selectedMonth})
+                    </h3>
+                    <div className="flex items-center space-x-4">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Select Month:
+                      </label>
+                      <input
+                        type="month"
+                        value={selectedMonth}
+                        onChange={(e) => setSelectedMonth(e.target.value)}
+                        className="rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
+                      />
+                    </div>
+                  </div>
+                </Card>
+
+                {carriers.map((carrier) => {
+                  const carrierTrips = trips.filter(
+                    (t) =>
+                      t.start_time.startsWith(selectedMonth) &&
+                      t.vehicle.carrier === carrier.id
+                  );
+
+                  if (carrierTrips.length === 0) return null;
+
+                  const driverStats = carrierTrips.reduce((acc: any, trip) => {
+                    const driverId = trip.driver.id;
+                    const driverName = trip.driver_name || "Unknown Driver";
+
+                    if (!acc[driverId]) {
+                      acc[driverId] = {
+                        id: driverId,
+                        name: driverName,
+                        totalMiles: 0,
+                        totalFuel: 0,
+                        tripsCount: 0,
+                        totalEngineHours: 0,
+                      };
+                    }
+
+                    acc[driverId].totalMiles += trip.total_miles || 0;
+                    acc[driverId].totalFuel += Number(trip.fuel_used || 0);
+                    acc[driverId].tripsCount += 1;
+                    acc[driverId].totalEngineHours += Number(
+                      trip.total_engine_hours || 0
+                    );
+
+                    return acc;
+                  }, {});
+
+                  const sortedDrivers = Object.values(driverStats).sort(
+                    (a: any, b: any) => b.totalMiles - a.totalMiles
+                  );
+
+                  return (
+                    <div key={carrier.id} className="space-y-4">
+                      <h4 className="text-xl font-bold text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-2">
+                        {carrier.name}
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {sortedDrivers.map((driver: any, index: number) => (
+                          <Card
+                            key={driver.id}
+                            className="p-6 relative overflow-hidden"
+                            hover
+                          >
+                            {index < 3 && (
+                              <div className="absolute top-0 right-0 p-2">
+                                <Trophy
+                                  className={`w-8 h-8 ${
+                                    index === 0
+                                      ? "text-yellow-400"
+                                      : index === 1
+                                      ? "text-gray-400"
+                                      : "text-orange-400"
+                                  }`}
+                                />
+                              </div>
+                            )}
+
+                            <div className="flex items-center mb-4">
+                              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mr-4">
+                                <span className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+                                  #{index + 1}
+                                </span>
+                              </div>
+                              <div>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                                  {driver.name}
+                                </h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  Total Miles
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
+                                <p className="text-xs text-gray-500 uppercase">
+                                  Miles
+                                </p>
+                                <p className="text-xl font-bold text-gray-900 dark:text-white">
+                                  {driver.totalMiles.toLocaleString()}
+                                </p>
+                              </div>
+                              <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
+                                <p className="text-xs text-gray-500 uppercase">
+                                  Trips
+                                </p>
+                                <p className="text-xl font-bold text-gray-900 dark:text-white">
+                                  {driver.tripsCount}
+                                </p>
+                              </div>
+                              <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
+                                <p className="text-xs text-gray-500 uppercase">
+                                  MPG
+                                </p>
+                                <p className="text-xl font-bold text-gray-900 dark:text-white">
+                                  {driver.totalFuel > 0
+                                    ? (
+                                        driver.totalMiles / driver.totalFuel
+                                      ).toFixed(1)
+                                    : "0"}
+                                </p>
+                              </div>
+                              <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
+                                <p className="text-xs text-gray-500 uppercase">
+                                  Avg MPH
+                                </p>
+                                <p className="text-xl font-bold text-gray-900 dark:text-white">
+                                  {driver.totalEngineHours > 0
+                                    ? (
+                                        driver.totalMiles /
+                                        driver.totalEngineHours
+                                      ).toFixed(1)
+                                    : "0"}
+                                </p>
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </>
