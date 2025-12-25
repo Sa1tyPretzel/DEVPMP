@@ -17,3 +17,13 @@ export const useCreateCarrier = () => {
     },
   });
 };
+
+export const useDeleteCarrier = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(carriersAPI.deleteCarrier, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("carriers");
+    },
+  });
+};

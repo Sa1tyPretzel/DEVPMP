@@ -302,6 +302,10 @@ export const vehiclesAPI = {
     const response = await api.post("/api/vehicles/", vehicleData);
     return response.data;
   },
+
+  deleteVehicle: async (id: number): Promise<void> => {
+    await api.delete(`/api/vehicles/${id}/`);
+  },
 };
 
 // ELD Logs API
@@ -332,6 +336,10 @@ export const carriersAPI = {
   }): Promise<Carrier> => {
     const response = await api.post("/api/carriers/", carrierData);
     return response.data;
+  },
+
+  deleteCarrier: async (id: number): Promise<void> => {
+    await api.delete(`/api/carriers/${id}/`);
   },
 };
 

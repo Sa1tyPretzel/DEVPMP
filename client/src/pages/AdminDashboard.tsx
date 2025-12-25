@@ -30,8 +30,8 @@ import Button from "../components/UI/Button";
 import Card from "../components/UI/Card";
 import Input from "../components/UI/Input";
 import Modal from "../components/UI/Modal";
-import { useCarriers, useCreateCarrier } from "../hooks/useCarriers";
-import { useVehicles, useCreateVehicle } from "../hooks/useVehicles";
+import { useCarriers, useCreateCarrier, useDeleteCarrier } from "../hooks/useCarriers";
+import { useVehicles, useCreateVehicle, useDeleteVehicle } from "../hooks/useVehicles";
 import { useTrips } from "../hooks/useTrips";
 
 // Form data interfaces
@@ -62,7 +62,11 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [carrierModalOpen, setCarrierModalOpen] = useState(false);
+  const [deleteCarrierModalOpen, setDeleteCarrierModalOpen] = useState(false);
+  const [carrierToDelete, setCarrierToDelete] = useState<number | null>(null);
   const [vehicleModalOpen, setVehicleModalOpen] = useState(false);
+  const [deleteVehicleModalOpen, setDeleteVehicleModalOpen] = useState(false);
+  const [vehicleToDelete, setVehicleToDelete] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(
     new Date().toISOString().slice(0, 7)
@@ -73,7 +77,9 @@ const AdminDashboard: React.FC = () => {
   const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
   const { data: trips = [], isLoading: tripsLoading } = useTrips();
   const createCarrierMutation = useCreateCarrier();
+  const deleteCarrierMutation = useDeleteCarrier();
   const createVehicleMutation = useCreateVehicle();
+  const deleteVehicleMutation = useDeleteVehicle();
 
   // React Hook Form instances
   const {
@@ -146,6 +152,32 @@ const AdminDashboard: React.FC = () => {
         (err as { response?: { data?: { detail?: string } } })?.response?.data
           ?.detail || (err as Error).message;
       setError(errorMessage || "Failed to create carrier.");
+    }
+  };
+
+  const handleDeleteCarrier = async () => {
+    if (!carrierToDelete) return;
+
+    try {
+      await deleteCarrierMutation.mutateAsync(carrierToDelete);
+      setDeleteCarrierModalOpen(false);
+      setCarrierToDelete(null);
+    } catch (error) {
+      console.error("Failed to delete carrier:", error);
+      setError("Failed to delete carrier. Please try again.");
+    }
+  };
+
+  const handleDeleteVehicle = async () => {
+    if (!vehicleToDelete) return;
+
+    try {
+      await deleteVehicleMutation.mutateAsync(vehicleToDelete);
+      setDeleteVehicleModalOpen(false);
+      setVehicleToDelete(null);
+    } catch (error) {
+      console.error("Failed to delete vehicle:", error);
+      setError("Failed to delete vehicle. Please try again.");
     }
   };
 
@@ -320,7 +352,13 @@ const AdminDashboard: React.FC = () => {
                                 <button className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                                   <Edit className="w-4 h-4" />
                                 </button>
-                                <button className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
+                                <button 
+                                  className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                  onClick={() => {
+                                    setCarrierToDelete(carrier.id);
+                                    setDeleteCarrierModalOpen(true);
+                                  }}
+                                >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
                               </div>
@@ -407,7 +445,13 @@ const AdminDashboard: React.FC = () => {
                                 <button className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                                   <Edit className="w-4 h-4" />
                                 </button>
-                                <button className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
+                                <button 
+                                  className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                  onClick={() => {
+                                    setVehicleToDelete(vehicle.id);
+                                    setDeleteVehicleModalOpen(true);
+                                  }}
+                                >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
                               </div>
@@ -757,6 +801,76 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        isOpen={deleteCarrierModalOpen}
+        onClose={() => {
+          setDeleteCarrierModalOpen(false);
+          setCarrierToDelete(null);
+        }}
+        title="Delete Carrier"
+      >
+        <div className="space-y-4">
+          <p className="text-gray-600 dark:text-gray-300">
+            Are you sure you want to delete this carrier? This action cannot be
+            undone.
+          </p>
+          <div className="flex justify-end space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteCarrierModalOpen(false);
+                setCarrierToDelete(null);
+              }}
+              disabled={deleteCarrierMutation.isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={handleDeleteCarrier}
+              loading={deleteCarrierMutation.isLoading}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={deleteVehicleModalOpen}
+        onClose={() => {
+          setDeleteVehicleModalOpen(false);
+          setVehicleToDelete(null);
+        }}
+        title="Delete Vehicle"
+      >
+        <div className="space-y-4">
+          <p className="text-gray-600 dark:text-gray-300">
+            Are you sure you want to delete this vehicle? This action cannot be
+            undone.
+          </p>
+          <div className="flex justify-end space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteVehicleModalOpen(false);
+                setVehicleToDelete(null);
+              }}
+              disabled={deleteVehicleMutation.isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={handleDeleteVehicle}
+              loading={deleteVehicleMutation.isLoading}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

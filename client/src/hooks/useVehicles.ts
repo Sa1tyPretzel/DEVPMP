@@ -17,3 +17,13 @@ export const useCreateVehicle = () => {
     },
   });
 };
+
+export const useDeleteVehicle = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(vehiclesAPI.deleteVehicle, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("vehicles");
+    },
+  });
+};
