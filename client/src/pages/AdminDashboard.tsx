@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import {
@@ -187,13 +188,29 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-poppins">
-          Admin Dashboard
-        </h1>
-        <p className="text-gray-600 dark:text-gray-300 mt-2">
-          Manage carriers, vehicles, and system resources
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-poppins">
+            Admin Dashboard
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">
+            Manage carriers, vehicles, and system resources
+          </p>
+        </div>
+        <div className="flex gap-2 mt-4 sm:mt-0">
+          <Link to="/vehicles/add">
+            <Button variant="outline" size="lg" className="w-full sm:w-auto">
+              <Truck className="w-4 h-4 mr-2" />
+              Add Vehicle
+            </Button>
+          </Link>
+          <Link to="/carriers/add">
+            <Button variant="outline" size="lg" className="w-full sm:w-auto">
+              <Building className="w-4 h-4 mr-2" />
+              Add Carrier
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="border-b border-gray-200 dark:border-gray-700 mb-8">
@@ -299,10 +316,6 @@ const AdminDashboard: React.FC = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                       />
                     </div>
-                    <Button onClick={() => setCarrierModalOpen(true)}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Carrier
-                    </Button>
                   </div>
                 </Card>
 
@@ -386,10 +399,6 @@ const AdminDashboard: React.FC = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                       />
                     </div>
-                    <Button onClick={() => setVehicleModalOpen(true)}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Vehicle
-                    </Button>
                   </div>
                 </Card>
 

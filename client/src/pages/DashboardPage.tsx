@@ -13,11 +13,9 @@ import {
   Trash2,
   Filter,
   Search,
-  Building,
   Fuel,
   User,
 } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
 import { useTrips, useUpdateTrip, useDeleteTrip } from "../hooks/useTrips";
 import { useVehicles } from "../hooks/useVehicles";
 import Button from "../components/UI/Button";
@@ -26,7 +24,6 @@ import Input from "../components/UI/Input";
 import Modal from "../components/UI/Modal";
 
 const DashboardPage: React.FC = () => {
-  const { isAdmin } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [vehicleFilter, setVehicleFilter] = useState("ALL");
@@ -149,32 +146,6 @@ const DashboardPage: React.FC = () => {
               Create Trip
             </Button>
           </Link>
-
-          {/* Admin Quick Actions */}
-          {isAdmin && (
-            <div className="flex gap-2">
-              <Link to="/vehicles/add">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full sm:w-auto"
-                >
-                  <Truck className="w-4 h-4 mr-2" />
-                  Add Vehicle
-                </Button>
-              </Link>
-              <Link to="/carriers/add">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full sm:w-auto"
-                >
-                  <Building className="w-4 h-4 mr-2" />
-                  Add Carrier
-                </Button>
-              </Link>
-            </div>
-          )}
         </div>
       </div>
 
