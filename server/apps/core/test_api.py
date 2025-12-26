@@ -10,7 +10,7 @@ User = get_user_model()
 
 class RoadPulseAPITestCase(APITestCase):
     """
-    Comprehensive test suite for the RoadPulse API using Django's APITestCase.
+    Comprehensive test suite for the DriveSense API using Django's APITestCase.
     """
 
     def setUp(self):

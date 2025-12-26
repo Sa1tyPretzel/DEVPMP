@@ -36,7 +36,7 @@ const Navbar: React.FC = () => {
             className="flex items-center space-x-2 text-navy-600 dark:text-white hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
           >
             <Truck className="w-8 h-8" />
-            <span className="text-xl font-bold font-poppins">RoadPulse</span>
+            <span className="text-xl font-bold font-poppins">DriveSense</span>
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">

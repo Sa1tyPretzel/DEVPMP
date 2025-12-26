@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
               <Truck className="w-8 h-8 text-teal-400" />
-              <span className="text-2xl font-bold font-poppins">RoadPulse</span>
+              <span className="text-2xl font-bold font-poppins">DriveSense</span>
             </div>
             <p className="text-gray-300 mb-4 max-w-md">
               Professional trucking platform designed for drivers. Simplify trip
@@ -68,11 +68,11 @@ const Footer: React.FC = () => {
             <ul className="space-y-2">
               <li className="flex items-center space-x-2 text-gray-300">
                 <Mail className="w-4 h-4" />
-                <span>support@roadpulse.com</span>
+                <span>mithileshpawar1@gmail.com</span>
               </li>
               <li className="flex items-center space-x-2 text-gray-300">
                 <Phone className="w-4 h-4" />
-                <span>1-800-ROADPULSE</span>
+                <span>1-800-DRIVESENSE</span>
               </li>
               <li className="flex items-center space-x-2 text-gray-300">
                 <MapPin className="w-4 h-4" />
@@ -84,7 +84,7 @@ const Footer: React.FC = () => {
 
         <div className="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            © 2025 RoadPulse. All rights reserved.
+            © 2025 DriveSense. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link

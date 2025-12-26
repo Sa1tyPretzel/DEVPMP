@@ -57,7 +57,7 @@ const LoginPage: React.FC = () => {
           <div className="flex justify-center">
             <div className="flex items-center space-x-2 text-teal-600">
               <Truck className="w-10 h-10" />
-              <span className="text-2xl font-bold font-poppins">RoadPulse</span>
+              <span className="text-2xl font-bold font-poppins">DriveSense</span>
             </div>
           </div>
           <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
@@ -130,7 +130,7 @@ const LoginPage: React.FC = () => {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
-                  New to RoadPulse?
+                  New to DriveSense?
                 </span>
               </div>
             </div>
@@ -150,7 +150,7 @@ const LoginPage: React.FC = () => {
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Need help? Contact our{" "}
             <a
-              href="mailto:support@roadpulse.com"
+              href="mailto:mithileshpawar1@gmail.com"
               className="font-medium text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300 transition-colors"
             >
               24/7 support team

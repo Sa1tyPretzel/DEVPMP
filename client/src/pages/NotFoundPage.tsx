@@ -67,7 +67,7 @@ const NotFoundPage: React.FC = () => {
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Need help? Contact our{" "}
             <a
-              href="mailto:support@roadpulse.com"
+              href="mailto:mithileshpawar1@gmail.com"
               className="text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300 font-medium"
             >
               support team

@@ -357,7 +357,7 @@ const HomePage: React.FC = () => {
                 </span>{" "}
                 with{" "}
                 <span className="bg-gradient-to-r from-teal-400 to-blue-400 bg-clip-text text-transparent">
-                  RoadPulse
+                  DriveSense
                 </span>
               </motion.h1>
 
@@ -540,7 +540,7 @@ const HomePage: React.FC = () => {
               Everything You Need for Professional Trucking
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              RoadPulse combines powerful trip planning, compliance tracking,
+              DriveSense combines powerful trip planning, compliance tracking,
               and log generation in one easy-to-use platform built for drivers.
             </p>
           </div>
@@ -679,7 +679,7 @@ const HomePage: React.FC = () => {
               Trusted by Professional Drivers
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300">
-              See what drivers and fleet managers are saying about RoadPulse
+              See what drivers and fleet managers are saying about DriveSense
             </p>
           </div>
 
@@ -694,7 +694,7 @@ const HomePage: React.FC = () => {
                 ))}
               </div>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                "RoadPulse has simplified my entire workflow. The HOS tracking
+                "DriveSense has simplified my entire workflow. The HOS tracking
                 is spot-on and the ELD logs print perfectly for inspections.
                 Finally, a platform built by people who understand trucking."
               </p>
@@ -721,7 +721,7 @@ const HomePage: React.FC = () => {
                 ))}
               </div>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                "Managing a fleet of 25 trucks is challenging, but RoadPulse
+                "Managing a fleet of 25 trucks is challenging, but DriveSense
                 makes it manageable. The compliance tracking gives me peace of
                 mind, and my drivers love how easy it is to use."
               </p>
@@ -748,7 +748,7 @@ const HomePage: React.FC = () => {
                 ))}
               </div>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                "I'm not the most tech-savvy, but RoadPulse is incredibly
+                "I'm not the most tech-savvy, but DriveSense is incredibly
                 intuitive. The night mode is perfect for planning routes during
                 rest breaks, and the support team is always helpful."
               </p>
@@ -819,7 +819,7 @@ const HomePage: React.FC = () => {
             Ready to Simplify Your Trucking Operations?
           </h2>
           <p className="text-xl text-teal-100 mb-8">
-            Join thousands of professional drivers who trust RoadPulse for their
+            Join thousands of professional drivers who trust DriveSense for their
             trip planning, compliance, and documentation needs.
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
