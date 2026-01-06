@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
               <Truck className="w-8 h-8 text-teal-400" />
-              <span className="text-2xl font-bold font-poppins">DriveSense</span>
+              <span className="text-2xl font-bold">DriveSense</span>
             </div>
             <p className="text-gray-300 mb-4 max-w-md">
               Professional trucking platform designed for drivers. Simplify trip

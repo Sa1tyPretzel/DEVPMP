@@ -81,7 +81,7 @@ const AddCarrierPage: React.FC = () => {
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-poppins">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Add New Carrier
           </h1>
           <p className="text-gray-600 dark:text-gray-300 mt-2">

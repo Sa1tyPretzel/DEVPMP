@@ -84,7 +84,7 @@ const RegisterPage: React.FC = () => {
           <div className="flex justify-center">
             <div className="flex items-center space-x-2 text-teal-600">
               <Truck className="w-10 h-10" />
-              <span className="text-2xl font-bold font-poppins">DriveSense</span>
+              <span className="text-2xl font-bold">DriveSense</span>
             </div>
           </div>
           <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">

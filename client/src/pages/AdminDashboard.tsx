@@ -12,22 +12,27 @@ import {
   Trash2,
   Eye,
   AlertCircle,
-  BarChart,
+  BarChart as BarChartIcon,
   Fuel,
   Gauge,
   Timer,
   Trophy,
 } from "lucide-react";
 import {
-  BarChart as RechartsBarChart,
+  BarChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
 } from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig,
+} from "@/components/UI/chart";
 import Button from "../components/UI/Button";
 import Card from "../components/UI/Card";
 import Input from "../components/UI/Input";
@@ -190,7 +195,7 @@ const AdminDashboard: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-poppins">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Admin Dashboard
           </h1>
           <p className="text-gray-600 dark:text-gray-300 mt-2">
@@ -501,61 +506,77 @@ const AdminDashboard: React.FC = () => {
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
                     Daily Fuel Consumption Trend
                   </h3>
-                  <div className="h-[300px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RechartsBarChart
-                        data={(() => {
-                          if (!selectedMonth) return [];
-                          const [year, month] = selectedMonth
-                            .split("-")
-                            .map(Number);
-                          const daysInMonth = new Date(year, month, 0).getDate();
-                          const data: any[] = [];
+                  <ChartContainer
+                    config={carriers.reduce((acc, carrier, index) => {
+                      acc[carrier.name] = {
+                        label: carrier.name,
+                        color: COLORS[index % COLORS.length],
+                      };
+                      return acc;
+                    }, {} as ChartConfig)}
+                    className="h-[300px] w-full"
+                  >
+                    <BarChart
+                      data={(() => {
+                        if (!selectedMonth) return [];
+                        const [year, month] = selectedMonth
+                          .split("-")
+                          .map(Number);
+                        const daysInMonth = new Date(year, month, 0).getDate();
+                        const data: Record<string, string | number>[] = [];
+                        
+                        for (let day = 1; day <= daysInMonth; day++) {
+                          const dateStr = `${selectedMonth}-${String(
+                            day
+                          ).padStart(2, "0")}`;
                           
-                          for (let day = 1; day <= daysInMonth; day++) {
-                            const dateStr = `${selectedMonth}-${String(
-                              day
-                            ).padStart(2, "0")}`;
-                            
-                            const dayData: any = { day: day.toString() };
-                            
-                            // Initialize all carriers with 0
-                            carriers.forEach(c => {
-                              dayData[c.name] = 0;
-                            });
+                          const dayData: Record<string, string | number> = { day: day.toString() };
+                          
+                          // Initialize all carriers with 0
+                          carriers.forEach(c => {
+                            dayData[c.name] = 0;
+                          });
 
-                            const dailyTrips = trips.filter((t) => 
-                              t.start_time.startsWith(dateStr)
-                            );
+                          const dailyTrips = trips.filter((t) => 
+                            t.start_time.startsWith(dateStr)
+                          );
 
-                            dailyTrips.forEach(trip => {
-                              const carrier = carriers.find(c => c.id === trip.vehicle.carrier);
-                              if (carrier) {
-                                dayData[carrier.name] += Number(trip.fuel_used || 0);
-                              }
-                            });
+                          dailyTrips.forEach(trip => {
+                            const carrier = carriers.find(c => c.id === trip.vehicle.carrier);
+                            if (carrier) {
+                              dayData[carrier.name] = (dayData[carrier.name] as number) + Number(trip.fuel_used || 0);
+                            }
+                          });
 
-                            data.push(dayData);
-                          }
-                          return data;
-                        })()}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="day" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        {carriers.map((carrier, index) => (
-                          <Bar
-                            key={carrier.id}
-                            dataKey={carrier.name}
-                            fill={COLORS[index % COLORS.length]}
-                            name={carrier.name}
-                          />
-                        ))}
-                      </RechartsBarChart>
-                    </ResponsiveContainer>
-                  </div>
+                          data.push(dayData);
+                        }
+                        return data;
+                      })()}
+                    >
+                      <CartesianGrid vertical={false} />
+                      <XAxis
+                        dataKey="day"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                      />
+                      <YAxis
+                        tickLine={false}
+                        axisLine={false}
+                        tickMargin={10}
+                      />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <ChartLegend content={<ChartLegendContent />} />
+                      {carriers.map((carrier) => (
+                        <Bar
+                          key={carrier.id}
+                          dataKey={carrier.name}
+                          fill={`var(--color-${carrier.name.replace(/\s+/g, '-')})`}
+                          radius={4}
+                        />
+                      ))}
+                    </BarChart>
+                  </ChartContainer>
                 </Card>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -602,7 +623,7 @@ const AdminDashboard: React.FC = () => {
                           </p>
                         </div>
                         <div className="w-10 h-10 bg-teal-100 dark:bg-teal-900/20 rounded-full flex items-center justify-center">
-                          <BarChart className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                          <BarChartIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />
                         </div>
                       </div>
 
