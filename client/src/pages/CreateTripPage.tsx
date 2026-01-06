@@ -71,6 +71,7 @@ const CreateTripPage: React.FC = () => {
   const [error, setError] = useState<string>("");
   const [routeCalculated, setRouteCalculated] = useState<boolean>(false);
   const [routeData, setRouteData] = useState<RouteData | null>(null);
+  const [tempTripId, setTempTripId] = useState<number | null>(null);
   const [suggestions, setSuggestions] = useState<{
     current: Suggestion[];
     pickup: Suggestion[];
@@ -224,20 +225,30 @@ const CreateTripPage: React.FC = () => {
       return;
     }
     try {
-      const newTrip = await createTripMutation.mutateAsync({
-        vehicle_id: parseInt(data.vehicle_id, 10),
-        current_location_input: data.current_location_coords,
-        current_location_name: data.current_location,
-        pickup_location_input: data.pickup_location_coords,
-        pickup_location_name: data.pickup_location,
-        dropoff_location_input: data.dropoff_location_coords,
-        dropoff_location_name: data.dropoff_location,
-        current_cycle_hours: data.current_cycle_hours,
-        fuel_used: data.fuel_used,
-        start_time: data.start_time,
-        status: "PLANNED",
-      });
-      navigate(`/trips/${newTrip.id}`);
+      let tripId: number;
+      
+      // If a temporary trip exists from route calculation, just navigate to it
+      // instead of creating a duplicate
+      if (tempTripId) {
+        tripId = tempTripId;
+      } else {
+        const newTrip = await createTripMutation.mutateAsync({
+          vehicle_id: parseInt(data.vehicle_id, 10),
+          current_location_input: data.current_location_coords,
+          current_location_name: data.current_location,
+          pickup_location_input: data.pickup_location_coords,
+          pickup_location_name: data.pickup_location,
+          dropoff_location_input: data.dropoff_location_coords,
+          dropoff_location_name: data.dropoff_location,
+          current_cycle_hours: data.current_cycle_hours,
+          fuel_used: data.fuel_used,
+          start_time: data.start_time,
+          status: "PLANNED",
+        });
+        tripId = newTrip.id;
+      }
+      
+      navigate(`/trips/${tripId}`);
     } catch (err) {
       const errorMessage =
         (err as { response?: { data?: { detail?: string } } })?.response?.data
@@ -280,6 +291,9 @@ const CreateTripPage: React.FC = () => {
 
       // A temporary trip is created to get the route plan
       const tempTrip = await createTripMutation.mutateAsync(payload);
+      
+      // Store the temporary trip ID so we can update it instead of creating a duplicate
+      setTempTripId(tempTrip.id);
 
       // The route is calculated based on the temporary trip
       const route: RouteData = await calculateRouteMutation.mutateAsync(
