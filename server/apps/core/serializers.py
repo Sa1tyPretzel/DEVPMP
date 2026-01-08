@@ -56,6 +56,7 @@ class DriverSerializer(serializers.ModelSerializer):
 
 class TripSerializer(serializers.ModelSerializer):
     # --- Read-only fields for displaying data ---
+    driver = DriverSerializer(read_only=True)
     vehicle = VehicleSerializer(read_only=True)
     current_location = PointField(read_only=True)
     pickup_location = PointField(read_only=True)

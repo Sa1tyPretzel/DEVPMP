@@ -30,7 +30,11 @@ const ManagerDriversPage: React.FC = () => {
 
   // Calculate metrics for each driver
   const driverMetrics: DriverMetrics[] = drivers.map((driver) => {
-    const driverTrips = allTrips.filter((trip) => trip.driver?.id === driver.id);
+    // Handle both driver as object or as ID
+    const driverTrips = allTrips.filter((trip) => {
+      const tripDriverId = typeof trip.driver === 'object' ? trip.driver?.id : trip.driver;
+      return tripDriverId === driver.id;
+    });
     const completedTrips = driverTrips.filter((trip) => trip.status === "COMPLETED");
     
     const totalMiles = completedTrips.reduce((sum, trip) => sum + (trip.total_miles || 0), 0);

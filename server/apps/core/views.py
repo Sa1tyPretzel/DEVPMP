@@ -128,6 +128,10 @@ class TripViewSet(viewsets.ModelViewSet):
         if user.is_staff:
             return Trip.objects.all()
         if hasattr(user, "driver"):
+            # Managers see all trips from drivers in their carrier
+            if user.driver.role == 'MANAGER':
+                return Trip.objects.filter(driver__carrier=user.driver.carrier)
+            # Regular drivers see only their own trips
             return Trip.objects.filter(driver=user.driver)
         return Trip.objects.none()
 

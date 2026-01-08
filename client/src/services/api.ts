@@ -124,7 +124,7 @@ export interface Vehicle {
 
 export interface Trip {
   id: number;
-  driver: Driver;
+  driver: Driver | number;
   driver_name?: string;
   vehicle: Vehicle;
   current_location: [number, number];
