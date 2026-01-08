@@ -23,6 +23,7 @@ import Button from "../components/UI/Button";
 import Card from "../components/UI/Card";
 import Input from "../components/UI/Input";
 import Modal from "../components/UI/Modal";
+import DriverTripsChart from "../components/UI/DriverTripsChart";
 
 const ManagerDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -272,6 +273,11 @@ const ManagerDashboard: React.FC = () => {
                 </div>
               </Card>
             </motion.div>
+          </div>
+
+          {/* Driver Trips Chart */}
+          <div className="mb-8">
+            <DriverTripsChart trips={trips} drivers={drivers} />
           </div>
 
           {/* Filters */}
