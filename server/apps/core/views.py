@@ -5,12 +5,13 @@ from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from .models import Trip, DutyStatus, Vehicle, Carrier, ELDLog
+from .models import Trip, DutyStatus, Vehicle, Carrier, Driver, ELDLog
 from .serializers import (
     TripSerializer,
     DutyStatusSerializer,
     VehicleSerializer,
     CarrierSerializer,
+    DriverSerializer,
     ELDLogSerializer,
 )
 from rest_framework.views import APIView
@@ -35,11 +36,30 @@ class IsAdminOrDriverForRead(permissions.BasePermission):
         return False
 
 
+class IsManagerOrAdminForVehicle(permissions.BasePermission):
+    """Allow admins full access, managers read and update only."""
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        if request.user.is_staff:
+            return True
+        # Managers can read and update vehicles in their carrier
+        if hasattr(request.user, "driver") and request.user.driver.role == 'MANAGER':
+            if request.method in permissions.SAFE_METHODS or request.method in ['PATCH', 'PUT']:
+                return True
+        # Drivers can only read
+        if hasattr(request.user, "driver") and request.method in permissions.SAFE_METHODS:
+            return True
+        return False
+
+
 class UserInfoView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         user = request.user
+        driver = getattr(user, 'driver', None)
+        
         return Response(
             {
                 "user_id": user.id,
@@ -48,7 +68,10 @@ class UserInfoView(generics.GenericAPIView):
                 "first_name": user.first_name,
                 "last_name": user.last_name,
                 "is_admin": user.is_staff or user.is_superuser,
-                "has_driver": hasattr(user, "driver"),
+                "has_driver": driver is not None,
+                "driver_id": driver.id if driver else None,
+                "role": driver.role if driver else None,
+                "carrier_id": driver.carrier_id if driver else None,
             }
         )
 
@@ -56,7 +79,7 @@ class UserInfoView(generics.GenericAPIView):
 class VehicleViewSet(viewsets.ModelViewSet):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
-    permission_classes = [IsAdminOrDriverForRead]
+    permission_classes = [IsManagerOrAdminForVehicle]
 
     def get_queryset(self):
         user = self.request.user
@@ -67,15 +90,32 @@ class VehicleViewSet(viewsets.ModelViewSet):
         return Vehicle.objects.none()
 
     def perform_create(self, serializer):
-        if not self.request.user.is_staff:
+        user = self.request.user
+        # Allow admins and managers to create
+        if user.is_staff or (hasattr(user, 'driver') and user.driver.role == 'MANAGER'):
+            serializer.save()
+        else:
             raise PermissionDenied("You do not have permission to create a vehicle.")
-        serializer.save()
 
 
 class CarrierViewSet(viewsets.ModelViewSet):
     queryset = Carrier.objects.all()
     serializer_class = CarrierSerializer
     permission_classes = [permissions.IsAdminUser]
+
+
+class DriverViewSet(viewsets.ModelViewSet):
+    queryset = Driver.objects.select_related('user', 'carrier').all()
+    serializer_class = DriverSerializer
+    permission_classes = [IsAdminOrDriverForRead]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff or user.is_superuser:
+            return Driver.objects.select_related('user', 'carrier').all()
+        if hasattr(user, 'driver') and user.driver.role == 'MANAGER':
+            return Driver.objects.select_related('user', 'carrier').filter(carrier=user.driver.carrier)
+        return Driver.objects.none()
 
 
 class TripViewSet(viewsets.ModelViewSet):

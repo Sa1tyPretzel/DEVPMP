@@ -5,6 +5,7 @@ from .views import (
     DutyStatusViewSet,
     VehicleViewSet,
     CarrierViewSet,
+    DriverViewSet,
     ELDLogViewSet,
     UserInfoView,
     ELDLogGenerateView,
@@ -17,6 +18,7 @@ router = routers.DefaultRouter()
 router.register(r"trips", TripViewSet, basename="trip")
 router.register(r"vehicles", VehicleViewSet, basename="vehicle")
 router.register(r"carriers", CarrierViewSet, basename="carrier")
+router.register(r"drivers", DriverViewSet, basename="driver")
 
 # Nested router for resources within a trip
 trips_router = routers.NestedSimpleRouter(router, r"trips", lookup="trip")

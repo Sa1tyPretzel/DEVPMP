@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import {
   Plus,
   MapPin,
-  Clock,
   CheckCircle,
   Truck,
   Calendar,
@@ -15,16 +14,17 @@ import {
   Search,
   Fuel,
   User,
+  Gauge,
 } from "lucide-react";
 import { useTrips, useUpdateTrip, useDeleteTrip } from "../hooks/useTrips";
 import { useVehicles } from "../hooks/useVehicles";
-import { useAuth } from "../contexts/AuthContext";
+import { useDrivers } from "../hooks/useDrivers";
 import Button from "../components/UI/Button";
 import Card from "../components/UI/Card";
 import Input from "../components/UI/Input";
 import Modal from "../components/UI/Modal";
 
-const DashboardPage: React.FC = () => {
+const ManagerDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [vehicleFilter, setVehicleFilter] = useState("ALL");
@@ -32,25 +32,28 @@ const DashboardPage: React.FC = () => {
   const [tripToDelete, setTripToDelete] = useState<number | null>(null);
 
   // API hooks
-  const { driverId } = useAuth();
   const { data: trips = [], isLoading, error } = useTrips();
   const { data: vehicles = [] } = useVehicles();
+  const { data: drivers = [] } = useDrivers();
   const updateTripMutation = useUpdateTrip();
   const deleteTripMutation = useDeleteTrip();
 
-  const assignedVehicle = vehicles.find((v) => v.assigned_driver === driverId);
-
-  // Calculate summary stats from real data
+  // Calculate summary stats from real data (carrier-wide)
+  const inProgressTrips = trips.filter((trip) => trip.status === "IN_PROGRESS");
   const completedTrips = trips.filter((trip) => trip.status === "COMPLETED");
-  const totalCycleHours =
-    trips.length > 0
-      ? trips.reduce((sum, trip) => sum + trip.current_cycle_hours, 0) /
-        trips.length
-      : 0;
   const totalFuelConsumed = trips.reduce(
     (sum, trip) => sum + Number(trip.fuel_used || 0),
     0
   );
+  const totalMiles = trips.reduce(
+    (sum, trip) => sum + Number(trip.total_miles || 0),
+    0
+  );
+  
+  // Fleet fuel efficiency (miles per gallon)
+  const fleetFuelEfficiency = totalFuelConsumed > 0 
+    ? (totalMiles / totalFuelConsumed).toFixed(1) 
+    : "0.0";
 
   // Filter trips based on search, status, and vehicle
   const filteredTrips = trips.filter((trip) => {
@@ -64,7 +67,7 @@ const DashboardPage: React.FC = () => {
       (trip.vehicle?.vehicle_number || "")
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      (trip.driver_name || "") // Added driver name to search
+      (trip.driver_name || "")
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
     const matchesStatus =
@@ -123,7 +126,7 @@ const DashboardPage: React.FC = () => {
             Error Loading Dashboard
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
-            {error instanceof Error ? error.message : "Failed to load trips"}
+            {error instanceof Error ? error.message : "Failed to load data"}
           </p>
         </div>
       </div>
@@ -136,17 +139,20 @@ const DashboardPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Dashboard
+            Manager Dashboard
           </h1>
           <p className="text-gray-600 dark:text-gray-300 mt-2">
-            Manage your trips and monitor HOS compliance
+            Manage your carrier fleet and monitor driver performance
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            {drivers.length} drivers • {vehicles.length} vehicles
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 mt-4 sm:mt-0">
-          <Link to="/trips/create">
+          <Link to="/vehicles/add">
             <Button className="w-full sm:w-auto" size="lg">
               <Plus className="w-5 h-5 mr-2" />
-              Create Trip
+              Add Vehicle
             </Button>
           </Link>
         </div>
@@ -185,7 +191,7 @@ const DashboardPage: React.FC = () => {
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      Fuel Consumed
+                      Fleet Fuel Consumed
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
                       {totalFuelConsumed.toFixed(1)} gal
@@ -209,10 +215,10 @@ const DashboardPage: React.FC = () => {
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      Assigned Vehicle
+                      In Progress
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {assignedVehicle ? assignedVehicle.vehicle_number : "None"}
+                      {inProgressTrips.length}
                     </p>
                   </div>
                 </div>
@@ -251,16 +257,16 @@ const DashboardPage: React.FC = () => {
               <Card className="p-6" hover>
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/20 rounded-md flex items-center justify-center">
-                      <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                    <div className="w-8 h-8 bg-teal-100 dark:bg-teal-900/20 rounded-md flex items-center justify-center">
+                      <Gauge className="w-5 h-5 text-teal-600 dark:text-teal-400" />
                     </div>
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      Avg Cycle Hours
+                      Fleet Fuel Efficiency
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {totalCycleHours.toFixed(1)}/70
+                      {fleetFuelEfficiency} mpg
                     </p>
                   </div>
                 </div>
@@ -317,7 +323,7 @@ const DashboardPage: React.FC = () => {
           <Card className="overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Your Trips ({filteredTrips.length})
+                Carrier Trips ({filteredTrips.length})
               </h2>
             </div>
 
@@ -332,14 +338,8 @@ const DashboardPage: React.FC = () => {
                   statusFilter !== "ALL" ||
                   vehicleFilter !== "ALL"
                     ? "Try adjusting your search or filter criteria."
-                    : "Get started by creating your first trip."}
+                    : "Your drivers haven't created any trips yet."}
                 </p>
-                <Link to="/trips/create">
-                  <Button>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Trip
-                  </Button>
-                </Link>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -362,7 +362,7 @@ const DashboardPage: React.FC = () => {
                         Start Time
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Cycle Hours
+                        Fuel Used
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Actions
@@ -375,7 +375,7 @@ const DashboardPage: React.FC = () => {
                         key={trip.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: index * 0.1 }}
+                        transition={{ duration: 0.4, delay: index * 0.05 }}
                         className="hover:bg-gray-50 dark:hover:bg-gray-700"
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -419,7 +419,7 @@ const DashboardPage: React.FC = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                          {trip.current_cycle_hours}/70
+                          {Number(trip.fuel_used || 0).toFixed(1)} gal
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end space-x-2">
@@ -489,4 +489,4 @@ const DashboardPage: React.FC = () => {
   );
 };
 
-export default DashboardPage;
+export default ManagerDashboard;

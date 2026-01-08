@@ -25,11 +25,17 @@ class Carrier(models.Model):
 
 
 class Driver(models.Model):
+    ROLE_CHOICES = [
+        ('DRIVER', 'Driver'),
+        ('MANAGER', 'Manager'),
+    ]
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     carrier = models.ForeignKey(
         Carrier, on_delete=models.CASCADE, related_name="drivers"
     )
     license_number = models.CharField(max_length=50, unique=True)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='DRIVER')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -49,6 +55,10 @@ class Vehicle(models.Model):
     vehicle_number = models.CharField(max_length=50, unique=True)
     license_plate = models.CharField(max_length=20)
     state = models.CharField(max_length=2)
+    assigned_driver = models.ForeignKey(
+        'Driver', on_delete=models.SET_NULL, null=True, blank=True, 
+        related_name="assigned_vehicles"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

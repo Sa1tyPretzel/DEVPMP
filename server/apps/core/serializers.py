@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Trip, Vehicle, Carrier, DutyStatus, ELDLog
+from .models import Trip, Vehicle, Carrier, Driver, DutyStatus, ELDLog
 
 
 # Custom field to correctly serialize a GeoDjango PointField to a list
@@ -15,15 +15,43 @@ class PointField(serializers.Field):
 
 
 class VehicleSerializer(serializers.ModelSerializer):
+    assigned_driver_name = serializers.SerializerMethodField()
+    
     class Meta:
         model = Vehicle
         fields = "__all__"
+    
+    def get_assigned_driver_name(self, obj):
+        if obj.assigned_driver:
+            return obj.assigned_driver.user.get_full_name() or obj.assigned_driver.user.username
+        return None
 
 
 class CarrierSerializer(serializers.ModelSerializer):
     class Meta:
         model = Carrier
         fields = "__all__"
+
+
+class DriverSerializer(serializers.ModelSerializer):
+    full_name = serializers.ReadOnlyField(source="user.get_full_name")
+    username = serializers.ReadOnlyField(source="user.username")
+    email = serializers.ReadOnlyField(source="user.email")
+    carrier_name = serializers.ReadOnlyField(source="carrier.name")
+
+    class Meta:
+        model = Driver
+        fields = [
+            "id",
+            "full_name",
+            "username",
+            "email",
+            "license_number",
+            "role",
+            "carrier",
+            "carrier_name",
+            "created_at",
+        ]
 
 
 class TripSerializer(serializers.ModelSerializer):

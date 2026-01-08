@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useVehicles } from "../hooks/useVehicles";
 import { useCreateTrip, useCalculateRoute } from "../hooks/useTrips";
+import { useAuth } from "../contexts/AuthContext";
 import Button from "../components/UI/Button";
 import Input from "../components/UI/Input";
 import Card from "../components/UI/Card";
@@ -86,9 +87,17 @@ const CreateTripPage: React.FC = () => {
   const navigate = useNavigate();
   const mapRef = useRef<L.Map | null>(null);
 
-  const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
+  // Get auth context for driver filtering
+  const { isAdmin, isManager, driverId } = useAuth();
+  
+  const { data: allVehicles = [], isLoading: vehiclesLoading } = useVehicles();
   const createTripMutation = useCreateTrip();
   const calculateRouteMutation = useCalculateRoute();
+  
+  // Filter vehicles: admins/managers see all, drivers only see assigned vehicles
+  const vehicles = (isAdmin || isManager)
+    ? allVehicles
+    : allVehicles.filter((v) => v.assigned_driver === driverId);
 
   const {
     register,

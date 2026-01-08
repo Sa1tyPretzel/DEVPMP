@@ -40,6 +40,8 @@ import Modal from "../components/UI/Modal";
 import { useCarriers, useCreateCarrier, useDeleteCarrier } from "../hooks/useCarriers";
 import { useVehicles, useCreateVehicle, useDeleteVehicle } from "../hooks/useVehicles";
 import { useTrips } from "../hooks/useTrips";
+import { useDrivers, useDeleteDriver, useUpdateDriver } from "../hooks/useDrivers";
+import { Driver } from "../services/api";
 
 // Form data interfaces
 interface CarrierForm {
@@ -74,6 +76,10 @@ const AdminDashboard: React.FC = () => {
   const [vehicleModalOpen, setVehicleModalOpen] = useState(false);
   const [deleteVehicleModalOpen, setDeleteVehicleModalOpen] = useState(false);
   const [vehicleToDelete, setVehicleToDelete] = useState<number | null>(null);
+  const [deleteDriverModalOpen, setDeleteDriverModalOpen] = useState(false);
+  const [driverToDelete, setDriverToDelete] = useState<number | null>(null);
+  const [editDriverModalOpen, setEditDriverModalOpen] = useState(false);
+  const [driverToEdit, setDriverToEdit] = useState<Driver | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(
     new Date().toISOString().slice(0, 7)
@@ -83,10 +89,13 @@ const AdminDashboard: React.FC = () => {
   const { data: carriers = [], isLoading: carriersLoading } = useCarriers();
   const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
   const { data: trips = [], isLoading: tripsLoading } = useTrips();
+  const { data: drivers = [], isLoading: driversLoading } = useDrivers();
   const createCarrierMutation = useCreateCarrier();
   const deleteCarrierMutation = useDeleteCarrier();
   const createVehicleMutation = useCreateVehicle();
   const deleteVehicleMutation = useDeleteVehicle();
+  const deleteDriverMutation = useDeleteDriver();
+  const updateDriverMutation = useUpdateDriver();
 
   // React Hook Form instances
   const {
@@ -107,7 +116,8 @@ const AdminDashboard: React.FC = () => {
     { id: "overview", label: "Overview", icon: Users },
     { id: "carriers", label: "Carriers", icon: Building },
     { id: "vehicles", label: "Vehicles", icon: Truck },
-    { id: "efficiency", label: "Efficiency", icon: BarChart },
+    { id: "drivers", label: "Drivers", icon: Users },
+    { id: "efficiency", label: "Efficiency", icon: BarChartIcon },
     { id: "top_drivers", label: "Top Drivers", icon: Trophy },
   ];
 
@@ -186,6 +196,35 @@ const AdminDashboard: React.FC = () => {
     } catch (error) {
       console.error("Failed to delete vehicle:", error);
       setError("Failed to delete vehicle. Please try again.");
+    }
+  };
+
+  const handleDeleteDriver = async () => {
+    if (!driverToDelete) return;
+
+    try {
+      await deleteDriverMutation.mutateAsync(driverToDelete);
+      setDeleteDriverModalOpen(false);
+      setDriverToDelete(null);
+    } catch (error) {
+      console.error("Failed to delete driver:", error);
+      setError("Failed to delete driver. Please try again.");
+    }
+  };
+
+  const handleUpdateDriverRole = async (newRole: 'DRIVER' | 'MANAGER') => {
+    if (!driverToEdit) return;
+
+    try {
+      await updateDriverMutation.mutateAsync({
+        id: driverToEdit.id,
+        data: { role: newRole },
+      });
+      setEditDriverModalOpen(false);
+      setDriverToEdit(null);
+    } catch (error) {
+      console.error("Failed to update driver:", error);
+      setError("Failed to update driver. Please try again.");
     }
   };
 
@@ -299,9 +338,8 @@ const AdminDashboard: React.FC = () => {
                       <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
                         Active Drivers
                       </p>
-                      {/* // TODO: Replace with a real API call when available */}
                       <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                        25
+                        {drivers.length}
                       </p>
                     </div>
                   </div>
@@ -478,6 +516,146 @@ const AdminDashboard: React.FC = () => {
                     </table>
                   </div>
                 </Card>
+              </div>
+            )}
+
+            {activeTab === "drivers" && (
+              <div className="space-y-6">
+                <Card className="p-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      placeholder="Search drivers by name, email, or license..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+                  </div>
+                </Card>
+
+                {carriers.map((carrier) => {
+                  const carrierDrivers = drivers.filter(
+                    (driver) =>
+                      driver.carrier === carrier.id &&
+                      (searchTerm === "" ||
+                        driver.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        driver.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        driver.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        driver.license_number?.toLowerCase().includes(searchTerm.toLowerCase()))
+                  );
+
+                  if (carrierDrivers.length === 0) return null;
+
+                  return (
+                    <Card key={carrier.id} className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-navy-100 dark:bg-navy-900/20 rounded-full flex items-center justify-center">
+                            <Building className="w-5 h-5 text-navy-600 dark:text-navy-400" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                              {carrier.name}
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {carrierDrivers.length} driver(s)
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                          <thead className="bg-gray-50 dark:bg-gray-800">
+                            <tr>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Name
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Email
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                License
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Role
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Actions
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                            {carrierDrivers.map((driver) => (
+                              <tr key={driver.id}>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                    {driver.full_name || driver.username}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                                    {driver.email}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                                    {driver.license_number}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span
+                                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                      driver.role === "MANAGER"
+                                        ? "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300"
+                                        : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                                    }`}
+                                  >
+                                    {driver.role}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="flex items-center space-x-2">
+                                    <button
+                                      onClick={() => {
+                                        setDriverToEdit(driver);
+                                        setEditDriverModalOpen(true);
+                                      }}
+                                      className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                                      title="Edit"
+                                    >
+                                      <Edit className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setDriverToDelete(driver.id);
+                                        setDeleteDriverModalOpen(true);
+                                      }}
+                                      className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                      title="Delete"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </Card>
+                  );
+                })}
+
+                {drivers.length === 0 && (
+                  <Card className="p-8 text-center">
+                    <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                    <p className="text-gray-500 dark:text-gray-400">
+                      No drivers found.
+                    </p>
+                  </Card>
+                )}
               </div>
             )}
 
@@ -1055,6 +1233,102 @@ const AdminDashboard: React.FC = () => {
               Delete
             </Button>
           </div>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={deleteDriverModalOpen}
+        onClose={() => {
+          setDeleteDriverModalOpen(false);
+          setDriverToDelete(null);
+        }}
+        title="Delete Driver"
+      >
+        <div className="space-y-4">
+          <p className="text-gray-600 dark:text-gray-300">
+            Are you sure you want to delete this driver? This action cannot be
+            undone.
+          </p>
+          <div className="flex justify-end space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteDriverModalOpen(false);
+                setDriverToDelete(null);
+              }}
+              disabled={deleteDriverMutation.isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={handleDeleteDriver}
+              loading={deleteDriverMutation.isLoading}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={editDriverModalOpen}
+        onClose={() => {
+          setEditDriverModalOpen(false);
+          setDriverToEdit(null);
+        }}
+        title="Edit Driver Role"
+      >
+        <div className="space-y-4">
+          {driverToEdit && (
+            <>
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                <p className="text-sm text-gray-600 dark:text-gray-400">Driver</p>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  {driverToEdit.full_name || driverToEdit.username}
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {driverToEdit.email}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Select Role
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => handleUpdateDriverRole('DRIVER')}
+                    disabled={updateDriverMutation.isLoading}
+                    className={`p-3 rounded-lg border-2 transition-colors ${
+                      driverToEdit.role === 'DRIVER'
+                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                        : 'border-gray-200 dark:border-gray-600 hover:border-green-300'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <span className="block font-medium text-gray-900 dark:text-white">Driver</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">Standard access</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleUpdateDriverRole('MANAGER')}
+                    disabled={updateDriverMutation.isLoading}
+                    className={`p-3 rounded-lg border-2 transition-colors ${
+                      driverToEdit.role === 'MANAGER'
+                        ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
+                        : 'border-gray-200 dark:border-gray-600 hover:border-purple-300'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <span className="block font-medium text-gray-900 dark:text-white">Manager</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">Carrier admin</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </Modal>
     </div>

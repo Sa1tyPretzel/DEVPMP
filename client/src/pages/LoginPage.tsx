@@ -20,7 +20,7 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state?.from?.pathname || "/dashboard";
+  const from = location.state?.from?.pathname;
 
   const {
     register,
@@ -33,13 +33,26 @@ const LoginPage: React.FC = () => {
     setError("");
 
     try {
-      await login(data.username, data.password);
-      navigate(from, { replace: true });
+      const user = await login(data.username, data.password);
+      
+      // Role-based redirect
+      let redirectTo = from;
+      if (!redirectTo) {
+        if (user.is_admin) {
+          redirectTo = "/admin";
+        } else if (user.role === "MANAGER") {
+          redirectTo = "/manager";
+        } else {
+          redirectTo = "/dashboard";
+        }
+      }
+      
+      navigate(redirectTo, { replace: true });
     } catch (err) {
       const errorMessage =
         (err as { response?: { data?: { detail?: string } } })?.response?.data
           ?.detail || (err as Error).message;
-      setError(errorMessage || "Failed to create carrier.");
+      setError(errorMessage || "Failed to login.");
     } finally {
       setLoading(false);
     }

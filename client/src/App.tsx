@@ -11,8 +11,10 @@ import CreateTripPage from "./pages/CreateTripPage";
 import TripDetailsPage from "./pages/TripDetailsPage";
 import ELDLogsPage from "./pages/ELDLogsPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import ManagerDashboard from "./pages/ManagerDashboard";
 import AddVehiclePage from "./pages/AddVehiclePage";
 import AddCarrierPage from "./pages/AddCarrierPage";
+import AssignVehiclePage from "./pages/AssignVehiclePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
 
@@ -72,7 +74,7 @@ function App() {
                 <Route
                   path="/vehicles/add"
                   element={
-                    <ProtectedRoute requireAdmin>
+                    <ProtectedRoute requireManager>
                       <AddVehiclePage />
                     </ProtectedRoute>
                   }
@@ -90,6 +92,22 @@ function App() {
                   element={
                     <ProtectedRoute requireAdmin>
                       <AdminDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/manager"
+                  element={
+                    <ProtectedRoute requireManager>
+                      <ManagerDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/assign-vehicle"
+                  element={
+                    <ProtectedRoute requireManager>
+                      <AssignVehiclePage />
                     </ProtectedRoute>
                   }
                 />

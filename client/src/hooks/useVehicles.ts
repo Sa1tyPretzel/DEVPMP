@@ -27,3 +27,17 @@ export const useDeleteVehicle = () => {
     },
   });
 };
+
+export const useUpdateVehicle = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    ({ id, data }: { id: number; data: Partial<import("../services/api").Vehicle> }) =>
+      vehiclesAPI.updateVehicle(id, data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries("vehicles");
+      },
+    }
+  );
+};

@@ -13,11 +13,15 @@ const API_BASE_URL =
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<User>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isManager: boolean;
+  role: 'DRIVER' | 'MANAGER' | 'ADMIN' | null;
+  carrierId: number | null;
+  driverId: number | null;
   loading: boolean;
 }
 
@@ -94,6 +98,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           last_name: userInfo.last_name,
           is_admin: userInfo.is_admin,
           has_driver: userInfo.has_driver,
+          driver_id: userInfo.driver_id,
+          role: userInfo.role,
+          carrier_id: userInfo.carrier_id,
         };
 
         localStorage.setItem("user", JSON.stringify(user));
@@ -117,8 +124,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem("refresh_token", response.refresh);
       setToken(response.access);
 
-      // Fetch user info from API
-      await fetchUserInfo(response.access);
+      // Fetch user info from API and return it
+      const user = await fetchUserInfo(response.access);
+      return user;
     } catch (error: any) {
       console.error("Login error:", error);
       const errorMessage =
@@ -158,6 +166,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
   };
 
+  const isAdmin = user?.is_admin || false;
+  const role = isAdmin ? 'ADMIN' as const : (user?.role || null);
+  const isManager = role === 'MANAGER';
+  const carrierId = user?.carrier_id || null;
+  const driverId = user?.driver_id || null;
+
   const value: AuthContextType = {
     user,
     token,
@@ -165,7 +179,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     register,
     logout,
     isAuthenticated: !!token && !!user,
-    isAdmin: user?.is_admin || false,
+    isAdmin,
+    isManager,
+    role,
+    carrierId,
+    driverId,
     loading,
   };
 

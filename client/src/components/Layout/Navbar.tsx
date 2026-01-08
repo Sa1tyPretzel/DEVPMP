@@ -6,7 +6,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, user, logout, isAdmin } = useAuth();
+  const { isAuthenticated, user, logout, isAdmin, isManager } = useAuth();
   const { isDarkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,9 +19,9 @@ const Navbar: React.FC = () => {
 
   const navLinks = isAuthenticated
     ? [
-        { to: "/dashboard", label: "Dashboard" },
-        { to: "/trips/create", label: "Create Trip" },
         ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
+        ...(isManager && !isAdmin ? [{ to: "/manager", label: "Manager" }] : []),
+        ...(isManager && !isAdmin ? [{ to: "/assign-vehicle", label: "Assign Vehicle" }] : []),
       ]
     : [];
 

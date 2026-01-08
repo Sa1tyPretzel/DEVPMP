@@ -84,7 +84,13 @@ export interface User {
   id: number;
   username: string;
   email: string;
+  first_name?: string;
+  last_name?: string;
   is_admin: boolean;
+  has_driver?: boolean;
+  driver_id?: number | null;
+  role?: 'DRIVER' | 'MANAGER' | null;
+  carrier_id?: number | null;
   driver?: {
     license_number: string;
     carrier: {
@@ -97,8 +103,13 @@ export interface User {
 export interface Driver {
   id: number;
   full_name: string;
+  username: string;
+  email: string;
   license_number: string;
+  role: 'DRIVER' | 'MANAGER';
   carrier: number;
+  carrier_name: string;
+  created_at: string;
 }
 
 export interface Vehicle {
@@ -107,6 +118,8 @@ export interface Vehicle {
   license_plate: string;
   state: string;
   carrier: number;
+  assigned_driver: number | null;
+  assigned_driver_name: string | null;
 }
 
 export interface Trip {
@@ -115,8 +128,11 @@ export interface Trip {
   driver_name?: string;
   vehicle: Vehicle;
   current_location: [number, number];
+  current_location_name?: string;
   pickup_location: [number, number];
+  pickup_location_name?: string;
   dropoff_location: [number, number];
+  dropoff_location_name?: string;
   fuel_used: number;
   total_miles: number;
   total_engine_hours: number;
@@ -306,6 +322,11 @@ export const vehiclesAPI = {
   deleteVehicle: async (id: number): Promise<void> => {
     await api.delete(`/api/vehicles/${id}/`);
   },
+
+  updateVehicle: async (id: number, data: Partial<Vehicle>): Promise<Vehicle> => {
+    const response = await api.patch(`/api/vehicles/${id}/`, data);
+    return response.data;
+  },
 };
 
 // ELD Logs API
@@ -340,6 +361,28 @@ export const carriersAPI = {
 
   deleteCarrier: async (id: number): Promise<void> => {
     await api.delete(`/api/carriers/${id}/`);
+  },
+};
+
+// Drivers API (Admin/Manager)
+export const driversAPI = {
+  getDrivers: async (): Promise<Driver[]> => {
+    const response = await api.get("/api/drivers/");
+    return response.data;
+  },
+
+  getDriver: async (id: number): Promise<Driver> => {
+    const response = await api.get(`/api/drivers/${id}/`);
+    return response.data;
+  },
+
+  updateDriver: async (id: number, data: Partial<Driver>): Promise<Driver> => {
+    const response = await api.patch(`/api/drivers/${id}/`, data);
+    return response.data;
+  },
+
+  deleteDriver: async (id: number): Promise<void> => {
+    await api.delete(`/api/drivers/${id}/`);
   },
 };
 

@@ -20,7 +20,7 @@ interface VehicleForm {
 const AddVehiclePage: React.FC = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { isAdmin } = useAuth();
+  const { isAdmin, isManager, carrierId } = useAuth();
 
   // API hooks
   const { data: carriers = [], isLoading: carriersLoading } = useCarriers();
@@ -90,15 +90,18 @@ const AddVehiclePage: React.FC = () => {
     setError("");
 
     try {
+      // For managers, use their carrier ID
+      const vehicleCarrier = isManager && !isAdmin ? carrierId : data.carrier;
+      
       await createVehicleMutation.mutateAsync({
         vehicle_number: data.vehicle_number,
         license_plate: data.license_plate,
         state: data.state,
-        carrier: data.carrier,
+        carrier: vehicleCarrier as number,
       });
 
-      // Navigate back to dashboard instead of previous page
-      navigate("/dashboard");
+      // Navigate based on role
+      navigate(isAdmin ? "/admin" : "/manager");
     } catch (err) {
       const errorMessage =
         (err as { response?: { data?: { detail?: string } } })?.response?.data
@@ -109,8 +112,8 @@ const AddVehiclePage: React.FC = () => {
     }
   };
 
-  // Check if user has permission
-  if (!isAdmin) {
+  // Check if user has permission (admin or manager)
+  if (!isAdmin && !isManager) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Card className="p-8 text-center">
@@ -119,7 +122,7 @@ const AddVehiclePage: React.FC = () => {
             Access Denied
           </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-4">
-            You need admin privileges to add vehicles.
+            You need admin or manager privileges to add vehicles.
           </p>
           <Button onClick={() => navigate("/dashboard")}>
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -153,7 +156,7 @@ const AddVehiclePage: React.FC = () => {
       {/* Header */}
       <div className="flex items-center space-x-4 mb-8">
         <button
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate(isAdmin ? "/admin" : "/manager")}
           className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
         >
           <ArrowLeft className="w-6 h-6" />
@@ -252,30 +255,45 @@ const AddVehiclePage: React.FC = () => {
                 )}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Carrier
-                </label>
-                <select
-                  className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-teal-500 focus:ring-teal-500 dark:bg-gray-700 dark:text-white"
-                  {...register("carrier", {
-                    required: "Carrier is required",
-                    valueAsNumber: true,
-                  })}
-                >
-                  <option value="">Select a carrier</option>
-                  {carriers.map((carrier) => (
-                    <option key={carrier.id} value={carrier.id}>
-                      {carrier.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.carrier && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                    {errors.carrier.message}
+              {/* Carrier Selection - only for admins, auto-selected for managers */}
+              {isAdmin ? (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Carrier
+                  </label>
+                  <select
+                    className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-teal-500 focus:ring-teal-500 dark:bg-gray-700 dark:text-white"
+                    {...register("carrier", {
+                      required: "Carrier is required",
+                      valueAsNumber: true,
+                    })}
+                  >
+                    <option value="">Select a carrier</option>
+                    {carriers.map((carrier) => (
+                      <option key={carrier.id} value={carrier.id}>
+                        {carrier.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.carrier && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                      {errors.carrier.message}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Carrier
+                  </label>
+                  <div className="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-600 px-3 py-2 text-gray-700 dark:text-gray-200">
+                    {carriers.find(c => c.id === carrierId)?.name || "Your Carrier"}
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Vehicle will be added to your carrier
                   </p>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -284,7 +302,7 @@ const AddVehiclePage: React.FC = () => {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate(isAdmin ? "/admin" : "/manager")}
               disabled={createVehicleMutation.isLoading}
               className="flex-1"
             >
