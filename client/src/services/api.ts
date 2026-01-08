@@ -133,11 +133,16 @@ export interface Trip {
   pickup_location_name?: string;
   dropoff_location: [number, number];
   dropoff_location_name?: string;
+  initial_odometer: number;
+  final_odometer?: number | null;
+  last_service_date?: string | null;
   fuel_used: number;
   total_miles: number;
   total_engine_hours: number;
+  fuel_efficiency?: number | null;
   current_cycle_hours: number;
   start_time: string;
+  end_time?: string | null;
   status: "PLANNED" | "IN_PROGRESS" | "COMPLETED";
   created_at: string;
   updated_at: string;

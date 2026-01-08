@@ -17,6 +17,7 @@ import Button from "../components/UI/Button";
 import Card from "../components/UI/Card";
 import Modal from "../components/UI/Modal";
 import Input from "../components/UI/Input";
+import TripCompletionModal, { TripCompletionData } from "../components/UI/TripCompletionModal";
 import { useTripDetails } from "../hooks/useTripDetails";
 import { useTripMutations } from "../hooks/useTripMutations";
 import { useCreateDutyStatus } from "../hooks/useDutyStatus";
@@ -52,6 +53,7 @@ const TripDetailsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [completionModalOpen, setCompletionModalOpen] = useState(false);
   const [dutyStatusModalOpen, setDutyStatusModalOpen] = useState(false);
   const [eldLogModalOpen, setEldLogModalOpen] = useState(false);
   const [newStatus, setNewStatus] = useState("");
@@ -194,7 +196,21 @@ const TripDetailsPage: React.FC = () => {
       const errorMessage =
         (err as { response?: { data?: { detail?: string } } })?.response?.data
           ?.detail || (err as Error).message;
-      setError(errorMessage || "Failed to create carrier.");
+      setError(errorMessage || "Failed to delete trip.");
+    }
+  };
+
+  const handleCompleteTrip = async (data: TripCompletionData) => {
+    try {
+      setError("");
+      await startTrip.mutateAsync(data);
+      setCompletionModalOpen(false);
+      setSuccessMessage("Trip completed successfully!");
+    } catch (err) {
+      const errorMessage =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data
+          ?.detail || (err as Error).message;
+      setError(errorMessage || "Failed to complete trip.");
     }
   };
 
@@ -304,6 +320,13 @@ const TripDetailsPage: React.FC = () => {
             <Button onClick={handleStartTrip} loading={startTrip.isLoading}>
               <Play className="w-4 h-4 mr-2" />
               Start Trip
+            </Button>
+          )}
+
+          {trip.status === "IN_PROGRESS" && (
+            <Button onClick={() => setCompletionModalOpen(true)}>
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Complete Trip
             </Button>
           )}
 
@@ -836,6 +859,17 @@ const TripDetailsPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Trip Completion Modal */}
+      <TripCompletionModal
+        isOpen={completionModalOpen}
+        onClose={() => setCompletionModalOpen(false)}
+        onComplete={handleCompleteTrip}
+        tripId={trip.id}
+        initialOdometer={trip.initial_odometer || 0}
+        startTime={trip.start_time}
+        isLoading={startTrip.isLoading}
+      />
     </div>
   );
 };

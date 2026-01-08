@@ -94,16 +94,21 @@ class TripSerializer(serializers.ModelSerializer):
             "dropoff_location_name",
             "dropoff_location",
             "dropoff_location_input",
+            "initial_odometer",
+            "final_odometer",
+            "last_service_date",
             "fuel_used",
             "total_miles",
             "total_engine_hours",
+            "fuel_efficiency",
             "current_cycle_hours",
             "start_time",
+            "end_time",
             "status",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ("driver",)
+        read_only_fields = ("driver", "total_miles", "fuel_efficiency", "total_engine_hours")
 
     def create(self, validated_data):
         """
@@ -136,6 +141,31 @@ class TripSerializer(serializers.ModelSerializer):
             **validated_data
         )
         return trip
+
+    def update(self, instance, validated_data):
+        """
+        Update trip and auto-calculate fields when trip is completed.
+        """
+        # Update all fields normally
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        # If completing the trip, calculate the derived values
+        if instance.status == "COMPLETED" and instance.final_odometer and instance.initial_odometer:
+            # Calculate total miles from odometer
+            instance.total_miles = instance.final_odometer - instance.initial_odometer
+            
+            # Calculate fuel efficiency (miles per gallon)
+            if instance.fuel_used and float(instance.fuel_used) > 0:
+                instance.fuel_efficiency = instance.total_miles / float(instance.fuel_used)
+            
+            # Calculate total engine hours from start/end time
+            if instance.end_time and instance.start_time:
+                time_diff = instance.end_time - instance.start_time
+                instance.total_engine_hours = time_diff.total_seconds() / 3600  # Convert to hours
+        
+        instance.save()
+        return instance
 
 
 class DutyStatusSerializer(serializers.ModelSerializer):

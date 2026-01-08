@@ -83,6 +83,15 @@ class Trip(models.Model):
     dropoff_longitude = models.FloatField()
     dropoff_latitude = models.FloatField()
     dropoff_location_name = models.CharField(max_length=255, blank=True)
+    
+    # Odometer readings
+    initial_odometer = models.FloatField(default=0.0, help_text="Initial odometer reading at trip start")
+    final_odometer = models.FloatField(null=True, blank=True, help_text="Final odometer reading at trip end")
+    
+    # Service tracking
+    last_service_date = models.DateField(null=True, blank=True, help_text="Last vehicle service date")
+    
+    # Fuel tracking
     fuel_used = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -91,12 +100,17 @@ class Trip(models.Model):
         null=True,
         blank=True,
     )
+    
+    # Calculated fields
     total_miles = models.FloatField(default=0.0)
     total_engine_hours = models.DecimalField(
         max_digits=10, decimal_places=2, default=0.00
     )
+    fuel_efficiency = models.FloatField(null=True, blank=True, help_text="Miles per gallon")
+    
     current_cycle_hours = models.FloatField(default=0.0)
     start_time = models.DateTimeField()
+    end_time = models.DateTimeField(null=True, blank=True, help_text="Trip end time")
     status = models.CharField(
         max_length=20,
         choices=[
