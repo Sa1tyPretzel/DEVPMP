@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import {
   Plus,
   MapPin,
-  Clock,
   CheckCircle,
   Truck,
   Calendar,
@@ -40,17 +39,20 @@ const DashboardPage: React.FC = () => {
 
   const assignedVehicle = vehicles.find((v) => v.assigned_driver === driverId);
 
-  // Calculate summary stats from real data
+  // Calculate summary stats from completed trips (where fuel data is entered)
   const completedTrips = trips.filter((trip) => trip.status === "COMPLETED");
-  const totalCycleHours =
-    trips.length > 0
-      ? trips.reduce((sum, trip) => sum + trip.current_cycle_hours, 0) /
-        trips.length
-      : 0;
-  const totalFuelConsumed = trips.reduce(
+  const totalMiles = completedTrips.reduce((sum, trip) => sum + (trip.total_miles || 0), 0);
+  const totalFuelConsumed = completedTrips.reduce(
     (sum, trip) => sum + Number(trip.fuel_used || 0),
     0
   );
+  
+  // Calculate average fuel efficiency from completed trips
+  // Use saved fuel_efficiency values if available, otherwise calculate
+  const tripsWithEfficiency = completedTrips.filter((trip) => trip.fuel_efficiency && trip.fuel_efficiency > 0);
+  const avgFuelEfficiency = tripsWithEfficiency.length > 0
+    ? tripsWithEfficiency.reduce((sum, trip) => sum + (trip.fuel_efficiency || 0), 0) / tripsWithEfficiency.length
+    : (totalFuelConsumed > 0 ? totalMiles / totalFuelConsumed : 0);
 
   // Filter trips based on search, status, and vehicle
   const filteredTrips = trips.filter((trip) => {
@@ -252,15 +254,15 @@ const DashboardPage: React.FC = () => {
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <div className="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/20 rounded-md flex items-center justify-center">
-                      <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                      <Fuel className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
                     </div>
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      Avg Cycle Hours
+                      Fuel Efficiency
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {totalCycleHours.toFixed(1)}/70
+                      {avgFuelEfficiency.toFixed(1)} mpg
                     </p>
                   </div>
                 </div>

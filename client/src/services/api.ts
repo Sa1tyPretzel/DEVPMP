@@ -244,8 +244,8 @@ export const tripsAPI = {
     pickup_location_name: string;
     dropoff_location_input: [number, number];
     dropoff_location_name: string;
-    fuel_used?: number;
-    current_cycle_hours: number;
+    initial_odometer?: number;
+    last_service_date?: string | null;
     start_time: string;
     status?: string;
   }): Promise<Trip> => {
@@ -257,8 +257,8 @@ export const tripsAPI = {
       pickup_location_name: tripData.pickup_location_name,
       dropoff_location_input: tripData.dropoff_location_input,
       dropoff_location_name: tripData.dropoff_location_name,
-      fuel_used: tripData.fuel_used,
-      current_cycle_hours: tripData.current_cycle_hours,
+      initial_odometer: tripData.initial_odometer || 0,
+      last_service_date: tripData.last_service_date || null,
       start_time: tripData.start_time,
       status: tripData.status || "PLANNED",
     };

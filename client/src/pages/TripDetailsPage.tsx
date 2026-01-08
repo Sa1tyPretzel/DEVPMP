@@ -614,7 +614,6 @@ const TripDetailsPage: React.FC = () => {
               <option value="">Select status</option>
               <option value="PLANNED">Planned</option>
               <option value="IN_PROGRESS">In Progress</option>
-              <option value="COMPLETED">Completed</option>
             </select>
           </div>
           {error && (

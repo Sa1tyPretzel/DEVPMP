@@ -291,8 +291,8 @@ const CreateTripPage: React.FC = () => {
         pickup_location_name: formData.pickup_location,
         dropoff_location_input: formData.dropoff_location_coords,
         dropoff_location_name: formData.dropoff_location,
-        current_cycle_hours: formData.current_cycle_hours || 0,
-        fuel_used: formData.fuel_used || 0,
+        initial_odometer: formData.initial_odometer || 0,
+        last_service_date: formData.last_service_date || null,
         start_time: formData.start_time || new Date().toISOString(),
         status: "PLANNED",
       };
