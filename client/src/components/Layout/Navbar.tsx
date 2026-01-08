@@ -22,6 +22,7 @@ const Navbar: React.FC = () => {
         ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
         ...(isManager && !isAdmin ? [{ to: "/manager", label: "Manager" }] : []),
         ...(isManager && !isAdmin ? [{ to: "/assign-vehicle", label: "Assign Vehicle" }] : []),
+        ...(isManager && !isAdmin ? [{ to: "/manager/drivers", label: "Drivers" }] : []),
       ]
     : [];
 

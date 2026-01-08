@@ -59,8 +59,8 @@ interface TripForm {
   pickup_location_coords: [number, number] | null;
   dropoff_location: string;
   dropoff_location_coords: [number, number] | null;
-  current_cycle_hours: number;
-  fuel_used: number;
+  initial_odometer: number;
+  last_service_date: string;
   start_time: string;
 }
 
@@ -114,14 +114,13 @@ const CreateTripPage: React.FC = () => {
       pickup_location_coords: null,
       dropoff_location: "",
       dropoff_location_coords: null,
-      current_cycle_hours: 0,
-      fuel_used: 0,
+      initial_odometer: 0,
+      last_service_date: "",
       start_time: "",
     },
   });
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
-  const cycleHours = watch("current_cycle_hours");
   const currentCoords = watch("current_location_coords");
   const pickupCoords = watch("pickup_location_coords");
   const dropoffCoords = watch("dropoff_location_coords");
@@ -249,8 +248,8 @@ const CreateTripPage: React.FC = () => {
           pickup_location_name: data.pickup_location,
           dropoff_location_input: data.dropoff_location_coords,
           dropoff_location_name: data.dropoff_location,
-          current_cycle_hours: data.current_cycle_hours,
-          fuel_used: data.fuel_used,
+          initial_odometer: data.initial_odometer,
+          last_service_date: data.last_service_date,
           start_time: data.start_time,
           status: "PLANNED",
         });
@@ -484,57 +483,29 @@ const CreateTripPage: React.FC = () => {
               ))}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  label="Current Cycle Hours Used"
+                  label="Initial Odometer Reading"
                   type="number"
                   min="0"
-                  max="70"
-                  step="0.5"
-                  placeholder="20.5"
-                  icon={<Clock className="w-4 h-4" />}
-                  error={errors.current_cycle_hours?.message}
-                  {...register("current_cycle_hours", {
-                    required: "Cycle hours are required",
-                    min: { value: 0, message: "Hours cannot be negative" },
-                    max: { value: 70, message: "Hours cannot exceed 70" },
+                  step="1"
+                  placeholder="45000"
+                  icon={<Truck className="w-4 h-4" />}
+                  error={errors.initial_odometer?.message}
+                  {...register("initial_odometer", {
+                    required: "Initial odometer reading is required",
+                    min: { value: 0, message: "Odometer cannot be negative" },
                     valueAsNumber: true,
                   })}
                 />
                 <Input
-                  label="Fuel Used (gallons)"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  placeholder="25.5"
-                  icon={<Truck className="w-4 h-4" />}
-                  error={errors.fuel_used?.message}
-                  {...register("fuel_used", {
-                    required: "Fuel used is required",
-                    min: { value: 0, message: "Fuel cannot be negative" },
-                    valueAsNumber: true,
+                  label="Last Service Date"
+                  type="date"
+                  icon={<Calendar className="w-4 h-4" />}
+                  error={errors.last_service_date?.message}
+                  {...register("last_service_date", {
+                    required: "Last service date is required",
                   })}
                 />
               </div>
-              {cycleHours > 0 && (
-                <div className="mt-2 flex items-center space-x-2">
-                  <div className="flex-1 bg-gray-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        cycleHours > 60
-                          ? "bg-red-500"
-                          : cycleHours > 50
-                          ? "bg-yellow-500"
-                          : "bg-green-500"
-                      }`}
-                      style={{
-                        width: `${Math.min((cycleHours / 70) * 100, 100)}%`,
-                      }}
-                    />
-                  </div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {70 - cycleHours} hours remaining
-                  </span>
-                </div>
-              )}
               <Input
                 label="Planned Start Time"
                 type="datetime-local"

@@ -15,6 +15,7 @@ import ManagerDashboard from "./pages/ManagerDashboard";
 import AddVehiclePage from "./pages/AddVehiclePage";
 import AddCarrierPage from "./pages/AddCarrierPage";
 import AssignVehiclePage from "./pages/AssignVehiclePage";
+import ManagerDriversPage from "./pages/ManagerDriversPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
 
@@ -108,6 +109,14 @@ function App() {
                   element={
                     <ProtectedRoute requireManager>
                       <AssignVehiclePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/manager/drivers"
+                  element={
+                    <ProtectedRoute requireManager>
+                      <ManagerDriversPage />
                     </ProtectedRoute>
                   }
                 />
