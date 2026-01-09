@@ -117,8 +117,6 @@ const AdminDashboard: React.FC = () => {
     { id: "carriers", label: "Carriers", icon: Building },
     { id: "vehicles", label: "Vehicles", icon: Truck },
     { id: "drivers", label: "Drivers", icon: Users },
-    { id: "efficiency", label: "Efficiency", icon: BarChartIcon },
-    { id: "top_drivers", label: "Top Drivers", icon: Trophy },
   ];
 
   // Filtering logic
