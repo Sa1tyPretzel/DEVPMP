@@ -7,6 +7,7 @@ import { useDrivers } from "../hooks/useDrivers";
 import { useTrips } from "../hooks/useTrips";
 import Card from "../components/UI/Card";
 import Button from "../components/UI/Button";
+import FuelUsageChart from "../components/UI/FuelUsageChart";
 
 interface DriverMetrics {
   driverId: number;
@@ -101,6 +102,11 @@ const ManagerDriversPage: React.FC = () => {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Fuel Usage Chart */}
+      <div className="mb-8">
+        <FuelUsageChart trips={allTrips} />
       </div>
 
       {isLoading ? (
