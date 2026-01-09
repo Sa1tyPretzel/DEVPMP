@@ -37,15 +37,15 @@ class IsAdminOrDriverForRead(permissions.BasePermission):
 
 
 class IsManagerOrAdminForVehicle(permissions.BasePermission):
-    """Allow admins full access, managers read and update only."""
+    """Allow admins full access, managers read, create, and update."""
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
         if request.user.is_staff:
             return True
-        # Managers can read and update vehicles in their carrier
+        # Managers can read, create, and update vehicles in their carrier
         if hasattr(request.user, "driver") and request.user.driver.role == 'MANAGER':
-            if request.method in permissions.SAFE_METHODS or request.method in ['PATCH', 'PUT']:
+            if request.method in permissions.SAFE_METHODS or request.method in ['POST', 'PATCH', 'PUT']:
                 return True
         # Drivers can only read
         if hasattr(request.user, "driver") and request.method in permissions.SAFE_METHODS:
