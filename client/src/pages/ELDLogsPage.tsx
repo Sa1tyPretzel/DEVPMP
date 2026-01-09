@@ -255,7 +255,7 @@ const ELDLogsPage: React.FC = () => {
                         {new Date(log.date!).toLocaleDateString()}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {log.total_miles} miles
+                        {log.total_miles} km
                       </p>
                     </div>
                     <button

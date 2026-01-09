@@ -41,10 +41,10 @@ const ManagerDriversPage: React.FC = () => {
     const totalFuel = completedTrips.reduce((sum, trip) => sum + Number(trip.fuel_used || 0), 0);
     const totalEngineHours = completedTrips.reduce((sum, trip) => sum + (trip.total_engine_hours || 0), 0);
     
-    // Fuel efficiency: miles per gallon
+    // Fuel efficiency: kilometers per liter
     const fuelEfficiency = totalFuel > 0 ? totalMiles / totalFuel : 0;
     
-    // Average speed: total miles / total engine hours
+    // Average speed: total kilometers / total engine hours
     const avgSpeed = totalEngineHours > 0 ? totalMiles / totalEngineHours : 0;
 
     return {
@@ -186,13 +186,13 @@ const ManagerDriversPage: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         <div className="flex items-center">
                           <Truck className="w-4 h-4 text-purple-500 mr-2" />
-                          {metrics.totalMiles.toFixed(0)} mi
+                          {metrics.totalMiles.toFixed(0)} km
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         <div className="flex items-center">
                           <Fuel className="w-4 h-4 text-orange-500 mr-2" />
-                          {metrics.totalFuel.toFixed(1)} gal
+                          {metrics.totalFuel.toFixed(1)} L
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -204,13 +204,13 @@ const ManagerDriversPage: React.FC = () => {
                             : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
                         }`}>
                           <Gauge className="w-3 h-3 mr-1" />
-                          {metrics.fuelEfficiency.toFixed(1)} mpg
+                          {metrics.fuelEfficiency.toFixed(1)} km/L
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         <div className="flex items-center">
                           <Gauge className="w-4 h-4 text-blue-500 mr-2" />
-                          {metrics.avgSpeed.toFixed(1)} mph
+                          {metrics.avgSpeed.toFixed(1)} km/h
                         </div>
                       </td>
                     </motion.tr>

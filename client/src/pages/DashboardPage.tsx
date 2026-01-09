@@ -190,7 +190,7 @@ const DashboardPage: React.FC = () => {
                       Fuel Consumed
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {totalFuelConsumed.toFixed(1)} gal
+                      {totalFuelConsumed.toFixed(1)} L
                     </p>
                   </div>
                 </div>
@@ -262,7 +262,7 @@ const DashboardPage: React.FC = () => {
                       Fuel Efficiency
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {avgFuelEfficiency.toFixed(1)} mpg
+                      {avgFuelEfficiency.toFixed(1)} km/L
                     </p>
                   </div>
                 </div>

@@ -51,7 +51,7 @@ const ManagerDashboard: React.FC = () => {
     0
   );
   
-  // Fleet fuel efficiency (miles per gallon)
+  // Fleet fuel efficiency (kilometers per liter)
   const fleetFuelEfficiency = totalFuelConsumed > 0 
     ? (totalMiles / totalFuelConsumed).toFixed(1) 
     : "0.0";
@@ -195,7 +195,7 @@ const ManagerDashboard: React.FC = () => {
                       Fleet Fuel Consumed
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {totalFuelConsumed.toFixed(1)} gal
+                      {totalFuelConsumed.toFixed(1)} L
                     </p>
                   </div>
                 </div>
@@ -267,7 +267,7 @@ const ManagerDashboard: React.FC = () => {
                       Fleet Fuel Efficiency
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {fleetFuelEfficiency} mpg
+                      {fleetFuelEfficiency} km/L
                     </p>
                   </div>
                 </div>
@@ -425,7 +425,7 @@ const ManagerDashboard: React.FC = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                          {Number(trip.fuel_used || 0).toFixed(1)} gal
+                          {Number(trip.fuel_used || 0).toFixed(1)} L
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end space-x-2">

@@ -554,7 +554,7 @@ const CreateTripPage: React.FC = () => {
                       Total Distance
                     </span>
                     <span className="text-sm text-gray-900">
-                      {routeData.total_miles} miles
+                      {routeData.total_miles} km
                     </span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-gray-50 rounded-md">

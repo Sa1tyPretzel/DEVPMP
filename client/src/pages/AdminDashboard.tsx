@@ -827,7 +827,7 @@ const AdminDashboard: React.FC = () => {
                               {avgFuel}
                             </span>
                             <span className="text-xs text-gray-500 ml-1">
-                              gal
+                              L
                             </span>
                           </div>
                         </div>
@@ -842,7 +842,7 @@ const AdminDashboard: React.FC = () => {
                               {fuelEfficiency}
                             </span>
                             <span className="text-xs text-gray-500 ml-1">
-                              mpg
+                              km/L
                             </span>
                           </div>
                         </div>
@@ -857,7 +857,7 @@ const AdminDashboard: React.FC = () => {
                               {avgSpeed}
                             </span>
                             <span className="text-xs text-gray-500 ml-1">
-                              mph
+                              km/h
                             </span>
                           </div>
                         </div>

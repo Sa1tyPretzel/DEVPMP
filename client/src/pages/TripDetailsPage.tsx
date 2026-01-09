@@ -559,11 +559,11 @@ const TripDetailsPage: React.FC = () => {
                           Log for {new Date(log.date).toLocaleDateString()}
                         </h3>
                         <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {log.total_miles} miles
+                          {log.total_miles} km
                         </span>
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400 grid grid-cols-3 gap-x-4">
-                        <span>Fuel: {log.fuel_consumed ?? "N/A"} gal</span>
+                        <span>Fuel: {log.fuel_consumed ?? "N/A"} L</span>
                         <span>
                           Engine: {log.total_engine_hours ?? "N/A"} hrs
                         </span>

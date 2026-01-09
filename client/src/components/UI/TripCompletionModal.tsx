@@ -131,7 +131,7 @@ const TripCompletionModal: React.FC<TripCompletionModalProps> = ({
                   error={errors.finalOdometer}
                 />
                 <p className="mt-1 text-xs text-gray-500">
-                  Initial reading: {initialOdometer.toLocaleString()} miles
+                  Initial reading: {initialOdometer.toLocaleString()} km
                 </p>
               </div>
 
@@ -167,7 +167,7 @@ const TripCompletionModal: React.FC<TripCompletionModalProps> = ({
                     {distanceTraveled.toFixed(0)}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Miles Traveled
+                    Kilometers Traveled
                   </p>
                 </div>
                 <div className="text-center">
@@ -175,7 +175,7 @@ const TripCompletionModal: React.FC<TripCompletionModalProps> = ({
                     {fuelEfficiency.toFixed(1)}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    MPG
+                    km/L
                   </p>
                 </div>
                 <div className="text-center">
