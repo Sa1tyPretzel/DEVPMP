@@ -136,7 +136,7 @@ const TripCompletionModal: React.FC<TripCompletionModalProps> = ({
               </div>
 
               <Input
-                label="Fuel Used (gallons)"
+                label="Fuel Used (Liters)"
                 type="number"
                 min="0"
                 step="0.1"
