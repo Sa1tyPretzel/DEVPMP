@@ -178,10 +178,13 @@ const LoginPage: React.FC = () => {
             </p>
             <div className="space-y-1 text-sm text-blue-700 dark:text-blue-300">
               <p>
-                <strong>Driver:</strong> demo / password
+                <strong>Driver:</strong> driver_test / Driverpassword@123
               </p>
               <p>
-                <strong>Admin:</strong> admin / password
+                <strong>Manager:</strong> manager_test / Managerpassword@123
+              </p>
+              <p>
+                <strong>Admin:</strong> admin / adminpassword@123
               </p>
             </div>
           </div>
